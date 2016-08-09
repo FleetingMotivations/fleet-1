@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="8be44c36e3824c5e93bfbc28a7f65c2b" Name="Diagram1" ZoomLevel="64" >
+        <EntityTypeShape EntityType="FleetServerModel.Workstation" Width="1.875" PointX="3.25" PointY="6.5" />
+        <EntityTypeShape EntityType="FleetServerModel.WorkStationWorkGroup" Width="2.125" PointX="3.25" PointY="9.25" />
+        <EntityTypeShape EntityType="FleetServerModel.WorkGroup" Width="1.875" PointX="3.25" PointY="12.5" />
+        <EntityTypeShape EntityType="FleetServerModel.User" Width="1.5" PointX="0.5" PointY="3.875" />
+        <EntityTypeShape EntityType="FleetServerModel.Room" Width="1.5" PointX="6.25" PointY="8.125" />
+        <EntityTypeShape EntityType="FleetServerModel.Building" Width="1.75" PointX="8.75" PointY="7.875" />
+        <EntityTypeShape EntityType="FleetServerModel.Campus" Width="1.75" PointX="8.75" PointY="10.75" />
+        <EntityTypeShape EntityType="FleetServerModel.Role" Width="1.5" PointX="0.5" PointY="2" />
+        <AssociationConnector Association="FleetServerModel.WorkstationWorkStationWorkGroup" />
+        <AssociationConnector Association="FleetServerModel.WorkGroupWorkStationWorkGroup" />
+        <AssociationConnector Association="FleetServerModel.UserWorkGroup" />
+        <AssociationConnector Association="FleetServerModel.RoleUser" />
+        <AssociationConnector Association="FleetServerModel.RoomWorkStationWorkGroup" />
+        <AssociationConnector Association="FleetServerModel.RoomBuilding" />
+        <AssociationConnector Association="FleetServerModel.CampusBuilding" />
+        <EntityTypeShape EntityType="FleetServerModel.Message" Width="2.75" PointX="6.875" PointY="0.5" />
+        <EntityTypeShape EntityType="FleetServerModel.FileMessage" Width="1.5" PointX="6" PointY="3.375" />
+        <InheritanceConnector EntityType="FleetServerModel.FileMessage" />
+        <EntityTypeShape EntityType="FleetServerModel.AppMessage" Width="1.5" PointX="8.875" PointY="3.375" />
+        <InheritanceConnector EntityType="FleetServerModel.AppMessage" ManuallyRouted="false" >
+        </InheritanceConnector>
+        <EntityTypeShape EntityType="FleetServerModel.WorkStationMessage" Width="1.875" PointX="3.125" PointY="1.5" />
+        <AssociationConnector Association="FleetServerModel.MessageWorkStationMessage" />
+        <AssociationConnector Association="FleetServerModel.WorkstationWorkStationMessage" />
+        <EntityTypeShape EntityType="FleetServerModel.Application" Width="1.5" PointX="6.625" PointY="13.625" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
