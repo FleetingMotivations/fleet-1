@@ -9,7 +9,7 @@ using FleetEntityFramework.Models;
 
 namespace FleetEntityFramework.DAL
 {
-    class FleetContext : DbContext
+    public class FleetContext : DbContext
     {
         public FleetContext() : base("FleetContext") {}
 
