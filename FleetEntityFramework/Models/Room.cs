@@ -15,6 +15,8 @@ namespace FleetEntityFramework.Models
         public int RoomId { get; set;  }
 
         [Required]
+        [Column(TypeName = "VARCHAR")]
+        [StringLength(100)]
         [Index(IsUnique=true)]
         public string RoomIdentifier { get; set; }
 

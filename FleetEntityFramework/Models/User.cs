@@ -14,12 +14,20 @@ namespace FleetEntityFramework.Models
         public int UserId { get; set; }
 
         [Required]
+        [Column(TypeName = "VARCHAR")]
+        [StringLength(100)]
         [Index(IsUnique = true)]
         public string Identifer { get; set; }
 
         [Required]
+        [Column(TypeName = "VARCHAR")]
+        [StringLength(100)]
         [Index("IX_UserFirstLastNameIndex", 1)]
         public string FirstName { get; set; }
+
+        [Required]
+        [Column(TypeName = "VARCHAR")]
+        [StringLength(100)]
         [Index("IX_UserFirstLastNameIndex", 2)]
         public string LastName { get; set; }
 

@@ -15,6 +15,8 @@ namespace FleetEntityFramework.Models
         public int BuildingId { get; set; }
 
         [Index(IsUnique = true)]
+        [Column(TypeName = "VARCHAR")]
+        [StringLength(100)]
         [Required]
         public string BuildingIdentifier { get; set; }
 

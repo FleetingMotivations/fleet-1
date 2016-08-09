@@ -36,17 +36,16 @@ namespace FleetEntityFramework.Migrations
                 .ForeignKey("dbo.Workstations", t => t.WorkstationId, cascadeDelete: true)
                 .ForeignKey("dbo.Applications", t => t.ApplicationId, cascadeDelete: true)
                 .Index(t => t.WorkstationId)
-                .Index(t => t.ApplicationId)
-                .Index(t => t.Uri, unique: true);
+                .Index(t => t.ApplicationId);
             
             CreateTable(
                 "dbo.Workstations",
                 c => new
                     {
                         WorkstationId = c.Int(nullable: false, identity: true),
-                        WorkstationIdentifier = c.String(nullable: false),
-                        IpAddress = c.String(nullable: false),
-                        MacAddress = c.String(nullable: false),
+                        WorkstationIdentifier = c.String(nullable: false, maxLength: 100, unicode: false),
+                        IpAddress = c.String(nullable: false, maxLength: 100, unicode: false),
+                        MacAddress = c.String(nullable: false, maxLength: 450, unicode: false),
                         RoomID = c.Int(nullable: false),
                         LastSeen = c.DateTime(nullable: false),
                     })
@@ -77,9 +76,9 @@ namespace FleetEntityFramework.Migrations
                 c => new
                     {
                         UserId = c.Int(nullable: false, identity: true),
-                        Identifer = c.String(nullable: false),
-                        FirstName = c.String(nullable: false),
-                        LastName = c.String(),
+                        Identifer = c.String(nullable: false, maxLength: 100, unicode: false),
+                        FirstName = c.String(nullable: false, maxLength: 100, unicode: false),
+                        LastName = c.String(nullable: false, maxLength: 100, unicode: false),
                         Role = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.UserId)
@@ -98,7 +97,7 @@ namespace FleetEntityFramework.Migrations
                     })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Messages", t => t.MessageId, cascadeDelete: true)
-                .ForeignKey("dbo.Workstations", t => t.WorkStationId, cascadeDelete: true)
+                .ForeignKey("dbo.Workstations", t => t.WorkStationId, cascadeDelete: false)
                 .Index(t => t.WorkStationId)
                 .Index(t => t.MessageId);
             
@@ -107,7 +106,7 @@ namespace FleetEntityFramework.Migrations
                 c => new
                     {
                         RoomId = c.Int(nullable: false, identity: true),
-                        RoomIdentifier = c.String(nullable: false),
+                        RoomIdentifier = c.String(nullable: false, maxLength: 100, unicode: false),
                         BuildingId = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.RoomId)
@@ -120,7 +119,7 @@ namespace FleetEntityFramework.Migrations
                 c => new
                     {
                         BuildingId = c.Int(nullable: false, identity: true),
-                        BuildingIdentifier = c.String(nullable: false),
+                        BuildingIdentifier = c.String(nullable: false, maxLength: 100, unicode: false),
                         CampusId = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.BuildingId)
@@ -217,7 +216,6 @@ namespace FleetEntityFramework.Migrations
             DropIndex("dbo.Workstations", new[] { "MacAddress" });
             DropIndex("dbo.Workstations", new[] { "IpAddress" });
             DropIndex("dbo.Workstations", new[] { "WorkstationIdentifier" });
-            DropIndex("dbo.Messages", new[] { "Uri" });
             DropIndex("dbo.Messages", new[] { "ApplicationId" });
             DropIndex("dbo.Messages", new[] { "WorkstationId" });
             DropTable("dbo.WorkgroupApplications");

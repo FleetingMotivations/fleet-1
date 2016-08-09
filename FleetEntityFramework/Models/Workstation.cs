@@ -14,14 +14,20 @@ namespace FleetEntityFramework.Models
         public int WorkstationId { get; set; }
 
         [Required]
+        [Column(TypeName ="VARCHAR")]
+        [StringLength(100)]
         [Index(IsUnique = true )]
         public string WorkstationIdentifier { get; set; }
 
         [Index]
+        [Column(TypeName = "VARCHAR")]
+        [StringLength(100)]
         [Required]
         public string IpAddress { get; set; }
 
         [Required]
+        [Column(TypeName = "VARCHAR")]
+        [StringLength(450)]
         [Index(IsUnique = true)]
         public string MacAddress { get; set; }
 

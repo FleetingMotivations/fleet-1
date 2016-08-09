@@ -40,7 +40,6 @@ namespace FleetEntityFramework.Models
         public bool HasBeenScanned { get; set; }
 
         [Required]
-        [Index(IsUnique = true)]
         public string Uri { get; set; }
     }
 
