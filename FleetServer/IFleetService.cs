@@ -13,7 +13,8 @@ namespace FleetServer
     public interface IFleetService
     {
         // Registration
-        FleetClientToken RegisterClient();
+        [OperationContract]
+        FleetClientToken RegisterClient(FleetClientRegistration registrationModel);
 
         //  Heartbeat
         [OperationContract]

@@ -6,6 +6,20 @@ using System.Runtime.Serialization;
 
 namespace FleetTransferObjects
 {
+
+    [DataContract]
+    public class FleetClientRegistration
+    {
+        [DataMember]
+        public string FriendlyName { get; set; }
+
+        [DataMember]
+        public string IpAddress { get; set; }
+
+        [DataMember]
+        public string MacAddress { get; set; }
+    }
+
     [DataContract]
     public class FleetFile
     {

@@ -13,6 +13,8 @@ namespace FleetEntityFramework.Models
         [Key]
         public int WorkstationId { get; set; }
 
+        public string FriendlyName { get; set; }
+
         [Required]
         [Column(TypeName ="VARCHAR")]
         [StringLength(100)]
@@ -25,15 +27,12 @@ namespace FleetEntityFramework.Models
         [Required]
         public string IpAddress { get; set; }
 
-        [Required]
         [Column(TypeName = "VARCHAR")]
         [StringLength(450)]
-        [Index(IsUnique = true)]
+        [Index]
         public string MacAddress { get; set; }
 
-        [Required]
-        [Index]
-        public int RoomID { get; set; }
+        public int? RoomID { get; set; }
         public virtual Room Room { get; set; }
 
         public DateTime LastSeen { get; set; }

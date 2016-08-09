@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
+using FleetEntityFramework.DAL;
 
 namespace FleetServer
 {
@@ -13,10 +14,40 @@ namespace FleetServer
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession)]
     public class FleetService : IFleetService
     {
+
         // Registration
-        public FleetClientToken RegisterClient()
+        public FleetClientToken RegisterClient(FleetClientRegistration registrationModel)
         {
-            return null;
+            // For now the unique hash will be the FriendlyName + Now hashed
+            var uniqueHash = (registrationModel.FriendlyName + DateTime.Now.ToString() 
+                /*+ registrationModel.IpAddress + registrationModel.MacAddress*/)
+                            .GetHashCode()
+                            .ToString(); // Super hacks for now
+
+            // TODO: Update to use dependency injection
+            using (var context = new FleetContext())
+            {
+                var workstation = context.Workstations
+                        .FirstOrDefault(s => s.WorkstationIdentifier == uniqueHash);
+                if (workstation == null)
+                {
+                    context.Workstations.Add(new FleetEntityFramework.Models.Workstation
+                    {
+                        FriendlyName = registrationModel.FriendlyName,
+                        WorkstationIdentifier = uniqueHash,
+                        IpAddress = registrationModel.IpAddress,
+                        MacAddress = registrationModel.MacAddress,
+                        LastSeen = DateTime.Now
+                    });
+
+                    context.SaveChanges();
+                }
+            }
+            return new FleetClientToken
+            {
+                Identifier = uniqueHash,
+                Token = uniqueHash
+            };
         }
 
         //  Heartbeat

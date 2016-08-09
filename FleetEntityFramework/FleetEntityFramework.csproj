@@ -57,6 +57,14 @@
     <Compile Include="Migrations\201608090459550_Initial.Designer.cs">
       <DependentUpon>201608090459550_Initial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201608090737484_WorkstationFriendlyName.cs" />
+    <Compile Include="Migrations\201608090737484_WorkstationFriendlyName.Designer.cs">
+      <DependentUpon>201608090737484_WorkstationFriendlyName.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201608090811490_MakeRoomIdNull.cs" />
+    <Compile Include="Migrations\201608090811490_MakeRoomIdNull.Designer.cs">
+      <DependentUpon>201608090811490_MakeRoomIdNull.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Application.cs" />
     <Compile Include="Models\Building.cs" />
@@ -79,6 +87,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201608090459550_Initial.resx">
       <DependentUpon>201608090459550_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608090737484_WorkstationFriendlyName.resx">
+      <DependentUpon>201608090737484_WorkstationFriendlyName.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608090811490_MakeRoomIdNull.resx">
+      <DependentUpon>201608090811490_MakeRoomIdNull.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
