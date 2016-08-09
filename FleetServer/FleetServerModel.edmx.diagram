@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="8be44c36e3824c5e93bfbc28a7f65c2b" Name="Diagram1" ZoomLevel="64" >
+      <Diagram DiagramId="8be44c36e3824c5e93bfbc28a7f65c2b" Name="Diagram1" ZoomLevel="94" >
         <EntityTypeShape EntityType="FleetServerModel.Workstation" Width="1.875" PointX="3.25" PointY="6.5" />
         <EntityTypeShape EntityType="FleetServerModel.WorkStationWorkGroup" Width="2.125" PointX="3.25" PointY="9.25" />
         <EntityTypeShape EntityType="FleetServerModel.WorkGroup" Width="1.875" PointX="3.25" PointY="12.5" />

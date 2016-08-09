@@ -4,11 +4,338 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl" Namespace="FleetServerModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2005">
-        <EntityContainer Name="FleetServerModelTargetContainer" >
-        </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+    <Schema Namespace="FleetServerModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2012" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityContainer Name="FleetServerModelStoreContainer">
+    <EntitySet Name="Workstations" EntityType="FleetServerModel.Store.Workstations" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="WorkStationWorkGroups" EntityType="FleetServerModel.Store.WorkStationWorkGroups" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="WorkGroups" EntityType="FleetServerModel.Store.WorkGroups" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Users" EntityType="FleetServerModel.Store.Users" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Rooms" EntityType="FleetServerModel.Store.Rooms" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Buildings" EntityType="FleetServerModel.Store.Buildings" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Campus" EntityType="FleetServerModel.Store.Campus" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Roles" EntityType="FleetServerModel.Store.Roles" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Messages" EntityType="FleetServerModel.Store.Messages" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="WorkStationMessages" EntityType="FleetServerModel.Store.WorkStationMessages" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Applications" EntityType="FleetServerModel.Store.Applications" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Messages_FileMessage" EntityType="FleetServerModel.Store.Messages_FileMessage" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Messages_AppMessage" EntityType="FleetServerModel.Store.Messages_AppMessage" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="UserWorkGroup" EntityType="FleetServerModel.Store.UserWorkGroup" store:Type="Tables" Schema="dbo" />
+    <AssociationSet Name="WorkstationWorkStationWorkGroup" Association="FleetServerModel.Store.WorkstationWorkStationWorkGroup">
+      <End Role="Workstation" EntitySet="Workstations" />
+      <End Role="WorkStationWorkGroup" EntitySet="WorkStationWorkGroups" />
+    </AssociationSet>
+    <AssociationSet Name="WorkGroupWorkStationWorkGroup" Association="FleetServerModel.Store.WorkGroupWorkStationWorkGroup">
+      <End Role="WorkGroup" EntitySet="WorkGroups" />
+      <End Role="WorkStationWorkGroup" EntitySet="WorkStationWorkGroups" />
+    </AssociationSet>
+    <AssociationSet Name="FK_UserWorkGroup_User" Association="FleetServerModel.Store.FK_UserWorkGroup_User">
+      <End Role="User" EntitySet="Users" />
+      <End Role="UserWorkGroup" EntitySet="UserWorkGroup" />
+    </AssociationSet>
+    <AssociationSet Name="FK_UserWorkGroup_WorkGroup" Association="FleetServerModel.Store.FK_UserWorkGroup_WorkGroup">
+      <End Role="WorkGroup" EntitySet="WorkGroups" />
+      <End Role="UserWorkGroup" EntitySet="UserWorkGroup" />
+    </AssociationSet>
+    <AssociationSet Name="RoleUser" Association="FleetServerModel.Store.RoleUser">
+      <End Role="Role" EntitySet="Roles" />
+      <End Role="User" EntitySet="Users" />
+    </AssociationSet>
+    <AssociationSet Name="RoomWorkStationWorkGroup" Association="FleetServerModel.Store.RoomWorkStationWorkGroup">
+      <End Role="Room" EntitySet="Rooms" />
+      <End Role="WorkStationWorkGroup" EntitySet="WorkStationWorkGroups" />
+    </AssociationSet>
+    <AssociationSet Name="RoomBuilding" Association="FleetServerModel.Store.RoomBuilding">
+      <End Role="Room" EntitySet="Rooms" />
+      <End Role="Building" EntitySet="Buildings" />
+    </AssociationSet>
+    <AssociationSet Name="CampusBuilding" Association="FleetServerModel.Store.CampusBuilding">
+      <End Role="Campus" EntitySet="Campus" />
+      <End Role="Building" EntitySet="Buildings" />
+    </AssociationSet>
+    <AssociationSet Name="MessageWorkStationMessage" Association="FleetServerModel.Store.MessageWorkStationMessage">
+      <End Role="Message" EntitySet="Messages" />
+      <End Role="WorkStationMessage" EntitySet="WorkStationMessages" />
+    </AssociationSet>
+    <AssociationSet Name="WorkstationWorkStationMessage" Association="FleetServerModel.Store.WorkstationWorkStationMessage">
+      <End Role="Workstation" EntitySet="Workstations" />
+      <End Role="WorkStationMessage" EntitySet="WorkStationMessages" />
+    </AssociationSet>
+    <AssociationSet Name="FK_FileMessage_inherits_Message" Association="FleetServerModel.Store.FK_FileMessage_inherits_Message">
+      <End Role="Message" EntitySet="Messages" />
+      <End Role="FileMessage" EntitySet="Messages_FileMessage" />
+    </AssociationSet>
+    <AssociationSet Name="FK_AppMessage_inherits_Message" Association="FleetServerModel.Store.FK_AppMessage_inherits_Message">
+      <End Role="Message" EntitySet="Messages" />
+      <End Role="AppMessage" EntitySet="Messages_AppMessage" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="Workstations">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ComputerName" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="IPAddress" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="MACAddress" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="LastSeen" Type="datetime" Nullable="false" />
+  </EntityType>
+  <EntityType Name="WorkStationWorkGroups">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TimeRemoved" Type="datetime" Nullable="true" />
+    <Property Name="CanShare" Type="bit" Nullable="false" DefaultValue="true" />
+    <Property Name="WorkstationId" Type="int" Nullable="false" />
+    <Property Name="WorkGroupId" Type="int" Nullable="false" />
+    <Property Name="RoomId" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="WorkGroups">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Started" Type="datetime" Nullable="false" />
+    <Property Name="Expired" Type="datetime" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Users">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Identifier" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="RoleId" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Rooms">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Identifier" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Building_Id" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Buildings">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Identifier" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="CampusId" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Campus">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Identifier" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Roles">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Messages">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="TargetApplication" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="TimeSent" Type="datetime" Nullable="false" />
+  </EntityType>
+  <EntityType Name="WorkStationMessages">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ReceiverId" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="MessageId" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="HasBeenSeen" Type="bit" Nullable="false" />
+    <Property Name="Received" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="MessageId1" Type="int" Nullable="false" />
+    <Property Name="WorkstationId" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Applications">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Messages_FileMessage">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="FileType" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="FileName" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="FileSizeBytes" Type="int" Nullable="false" />
+    <Property Name="HasBeenScanned" Type="bit" Nullable="false" />
+    <Property Name="URI" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Id" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Messages_AppMessage">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="MessageContents" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Id" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="UserWorkGroup">
+    <Key>
+      <PropertyRef Name="Users_Id" />
+      <PropertyRef Name="WorkGroups_Id" />
+    </Key>
+    <Property Name="Users_Id" Type="int" Nullable="false" />
+    <Property Name="WorkGroups_Id" Type="int" Nullable="false" />
+  </EntityType>
+  <Association Name="WorkstationWorkStationWorkGroup">
+    <End Role="Workstation" Type="FleetServerModel.Store.Workstations" Multiplicity="1" />
+    <End Role="WorkStationWorkGroup" Type="FleetServerModel.Store.WorkStationWorkGroups" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Workstation">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="WorkStationWorkGroup">
+        <PropertyRef Name="WorkstationId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="WorkGroupWorkStationWorkGroup">
+    <End Role="WorkGroup" Type="FleetServerModel.Store.WorkGroups" Multiplicity="1" />
+    <End Role="WorkStationWorkGroup" Type="FleetServerModel.Store.WorkStationWorkGroups" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="WorkGroup">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="WorkStationWorkGroup">
+        <PropertyRef Name="WorkGroupId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="RoleUser">
+    <End Role="Role" Type="FleetServerModel.Store.Roles" Multiplicity="1" />
+    <End Role="User" Type="FleetServerModel.Store.Users" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Role">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="User">
+        <PropertyRef Name="RoleId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="RoomWorkStationWorkGroup">
+    <End Role="Room" Type="FleetServerModel.Store.Rooms" Multiplicity="1" />
+    <End Role="WorkStationWorkGroup" Type="FleetServerModel.Store.WorkStationWorkGroups" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Room">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="WorkStationWorkGroup">
+        <PropertyRef Name="RoomId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="RoomBuilding">
+    <End Role="Room" Type="FleetServerModel.Store.Rooms" Multiplicity="*" />
+    <End Role="Building" Type="FleetServerModel.Store.Buildings" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Building">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Room">
+        <PropertyRef Name="Building_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CampusBuilding">
+    <End Role="Campus" Type="FleetServerModel.Store.Campus" Multiplicity="1" />
+    <End Role="Building" Type="FleetServerModel.Store.Buildings" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Campus">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Building">
+        <PropertyRef Name="CampusId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="MessageWorkStationMessage">
+    <End Role="Message" Type="FleetServerModel.Store.Messages" Multiplicity="1" />
+    <End Role="WorkStationMessage" Type="FleetServerModel.Store.WorkStationMessages" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Message">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="WorkStationMessage">
+        <PropertyRef Name="MessageId1" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="WorkstationWorkStationMessage">
+    <End Role="Workstation" Type="FleetServerModel.Store.Workstations" Multiplicity="1" />
+    <End Role="WorkStationMessage" Type="FleetServerModel.Store.WorkStationMessages" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Workstation">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="WorkStationMessage">
+        <PropertyRef Name="WorkstationId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_UserWorkGroup_User">
+    <End Role="User" Type="FleetServerModel.Store.Users" Multiplicity="1" />
+    <End Role="UserWorkGroup" Type="FleetServerModel.Store.UserWorkGroup" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="UserWorkGroup">
+        <PropertyRef Name="Users_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_UserWorkGroup_WorkGroup">
+    <End Role="UserWorkGroup" Type="FleetServerModel.Store.UserWorkGroup" Multiplicity="*" />
+    <End Role="WorkGroup" Type="FleetServerModel.Store.WorkGroups" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="WorkGroup">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="UserWorkGroup">
+        <PropertyRef Name="WorkGroups_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_FileMessage_inherits_Message">
+    <End Role="Message" Type="FleetServerModel.Store.Messages" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="FileMessage" Type="FleetServerModel.Store.Messages_FileMessage" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="Message">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="FileMessage">
+        <PropertyRef Name="Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_AppMessage_inherits_Message">
+    <End Role="Message" Type="FleetServerModel.Store.Messages" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="AppMessage" Type="FleetServerModel.Store.Messages_AppMessage" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="Message">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="AppMessage">
+        <PropertyRef Name="Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema xmlns="http://schemas.microsoft.com/ado/2009/11/edm" xmlns:cg="http://schemas.microsoft.com/ado/2006/04/codegeneration" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" Namespace="FleetServerModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" annotation:UseStrongSpatialTypes="false">
@@ -276,13 +603,144 @@
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
-      <Mapping xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs" Space="C-S">
-        <Alias Key="Model" Value="FleetServerModel" />
-        <Alias Key="Target" Value="FleetServerModel.Store" />
-        <EntityContainerMapping CdmEntityContainer="FleetServerModelContainer" StorageEntityContainer="FleetServerModelTargetContainer">
-        </EntityContainerMapping>
-      </Mapping>
-    </edmx:Mappings>
+    <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="FleetServerModelStoreContainer" CdmEntityContainer="FleetServerModelContainer">
+    <EntitySetMapping Name="Workstations">
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.Workstation)">
+        <MappingFragment StoreEntitySet="Workstations">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="ComputerName" ColumnName="ComputerName" />
+          <ScalarProperty Name="IPAddress" ColumnName="IPAddress" />
+          <ScalarProperty Name="MACAddress" ColumnName="MACAddress" />
+          <ScalarProperty Name="LastSeen" ColumnName="LastSeen" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="WorkStationWorkGroups">
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.WorkStationWorkGroup)">
+        <MappingFragment StoreEntitySet="WorkStationWorkGroups">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="TimeRemoved" ColumnName="TimeRemoved" />
+          <ScalarProperty Name="CanShare" ColumnName="CanShare" />
+          <ScalarProperty Name="WorkstationId" ColumnName="WorkstationId" />
+          <ScalarProperty Name="WorkGroupId" ColumnName="WorkGroupId" />
+          <ScalarProperty Name="RoomId" ColumnName="RoomId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="WorkGroups">
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.WorkGroup)">
+        <MappingFragment StoreEntitySet="WorkGroups">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Started" ColumnName="Started" />
+          <ScalarProperty Name="Expired" ColumnName="Expired" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Users">
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.User)">
+        <MappingFragment StoreEntitySet="Users">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Identifier" ColumnName="Identifier" />
+          <ScalarProperty Name="RoleId" ColumnName="RoleId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Rooms">
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.Room)">
+        <MappingFragment StoreEntitySet="Rooms">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Identifier" ColumnName="Identifier" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Buildings">
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.Building)">
+        <MappingFragment StoreEntitySet="Buildings">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Identifier" ColumnName="Identifier" />
+          <ScalarProperty Name="CampusId" ColumnName="CampusId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Campus">
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.Campus)">
+        <MappingFragment StoreEntitySet="Campus">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Identifier" ColumnName="Identifier" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Roles">
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.Role)">
+        <MappingFragment StoreEntitySet="Roles">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Messages">
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.Message)">
+        <MappingFragment StoreEntitySet="Messages">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="TargetApplication" ColumnName="TargetApplication" />
+          <ScalarProperty Name="TimeSent" ColumnName="TimeSent" />
+        </MappingFragment>
+      </EntityTypeMapping>
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.FileMessage)">
+        <MappingFragment StoreEntitySet="Messages_FileMessage">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="FileType" ColumnName="FileType" />
+          <ScalarProperty Name="FileName" ColumnName="FileName" />
+          <ScalarProperty Name="FileSizeBytes" ColumnName="FileSizeBytes" />
+          <ScalarProperty Name="HasBeenScanned" ColumnName="HasBeenScanned" />
+          <ScalarProperty Name="URI" ColumnName="URI" />
+        </MappingFragment>
+      </EntityTypeMapping>
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.AppMessage)">
+        <MappingFragment StoreEntitySet="Messages_AppMessage">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="MessageContents" ColumnName="MessageContents" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="WorkStationMessages">
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.WorkStationMessage)">
+        <MappingFragment StoreEntitySet="WorkStationMessages">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="ReceiverId" ColumnName="ReceiverId" />
+          <ScalarProperty Name="MessageId" ColumnName="MessageId" />
+          <ScalarProperty Name="HasBeenSeen" ColumnName="HasBeenSeen" />
+          <ScalarProperty Name="Received" ColumnName="Received" />
+          <ScalarProperty Name="MessageId1" ColumnName="MessageId1" />
+          <ScalarProperty Name="WorkstationId" ColumnName="WorkstationId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Applications">
+      <EntityTypeMapping TypeName="IsTypeOf(FleetServerModel.Application)">
+        <MappingFragment StoreEntitySet="Applications">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <AssociationSetMapping Name="UserWorkGroup" TypeName="FleetServerModel.UserWorkGroup" StoreEntitySet="UserWorkGroup">
+      <EndProperty Name="User">
+        <ScalarProperty Name="Id" ColumnName="Users_Id" />
+      </EndProperty>
+      <EndProperty Name="WorkGroup">
+        <ScalarProperty Name="Id" ColumnName="WorkGroups_Id" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="RoomBuilding" TypeName="FleetServerModel.RoomBuilding" StoreEntitySet="Rooms">
+      <EndProperty Name="Building">
+        <ScalarProperty Name="Id" ColumnName="Building_Id" />
+      </EndProperty>
+      <EndProperty Name="Room">
+        <ScalarProperty Name="Id" ColumnName="Id" />
+      </EndProperty>
+    </AssociationSetMapping>
+  </EntityContainerMapping>
+</Mapping></edmx:Mappings>
   </edmx:Runtime>
   <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
@@ -296,6 +754,7 @@
         <DesignerProperty Name="ValidateOnBuild" Value="true" />
         <DesignerProperty Name="EnablePluralization" Value="True" />
         <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+        <DesignerProperty Name="UseLegacyProvider" Value="False" />
       </DesignerInfoPropertySet>
     </edmx:Options>
     <!-- Diagram content (shape and connector positions) -->

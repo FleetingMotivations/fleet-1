@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FleetTransferObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -12,6 +13,37 @@ namespace FleetServer
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession)]
     public class FleetService : IFleetService
     {
-        //NOTE(Al): We need to implement this
+        // Registration
+        public FleetClientToken RegisterClient()
+        {
+            return null;
+        }
+
+        //  Heartbeat
+        public FleetHearbeatEnum Heartbeat(FleetClientToken token)
+        {
+            return FleetHearbeatEnum.FileAvailable;
+        }
+
+        // Files
+        public List<FleetFileIdentifier> QueryFiles(FleetClientToken token)
+        {
+            return null;
+        }
+
+        public FleetFile GetFile(FleetClientToken token, FleetFileIdentifier fileId)
+        {
+            return null;
+        }
+
+        public Boolean SendFile(FleetClientToken token, FleetClientIdentifier recipient, FleetFile file)
+        {
+            return false;
+        }
+
+        public Boolean SendFile(FleetClientToken token, List<FleetClientIdentifier> recipients, FleetFile file)
+        {
+            return false;
+        }
     }
 }
