@@ -6,6 +6,8 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using FleetEntityFramework.DAL;
+using FleetEntityFramework.Models;
+using FleetServer.Utils;
 
 namespace FleetServer
 {
@@ -50,10 +52,47 @@ namespace FleetServer
             };
         }
 
-        //  Heartbeat
-        public FleetHearbeatEnum Heartbeat(FleetClientToken token)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="knownClients">The querying clients list of current known clients</param>
+        /// <returns></returns>
+        public FleetHearbeatEnum Heartbeat(FleetClientToken token, 
+            IEnumerable<FleetClientIdentifier> knownClients)
         {
-            return FleetHearbeatEnum.FileAvailable;
+            FleetHearbeatEnum flags = FleetHearbeatEnum.NoUpdates; 
+            using (var context = new FleetContext())
+            {
+                var unseenMessages = context.MessageRecords
+                    .Where(r => r.Target.WorkstationIdentifier == token.Token)
+                    .Where(r => !r.HasBeenSeen);
+
+                if (unseenMessages.Any())
+                {
+                    flags = flags.AddFlag(FleetHearbeatEnum.FileAvailable);
+                    foreach (var message in unseenMessages)
+                    {
+                        message.HasBeenSeen = true;
+                    }
+                    context.SaveChanges();
+                }
+
+                var knownClientIdentifiers = knownClients.Select(c => c.WorkstationName);
+                var newWorkstations = context.Workstations
+                    .GetNewWorkstations(knownClientIdentifiers)
+                    .Any(w => w.WorkstationIdentifier != token.Identifier);
+
+                if (newWorkstations) flags.AddFlag(FleetHearbeatEnum.ClientUpdate);
+            }
+
+            // If thre are updates, remove the no update flag from the enum
+            if (flags.GetValues<FleetHearbeatEnum>().Any(flag => flags.HasFlag(flag)))
+            {
+                flags.RemoveFlag(FleetHearbeatEnum.NoUpdates);
+            }
+
+            return flags;
         }
 
         // Files
