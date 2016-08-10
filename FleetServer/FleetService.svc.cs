@@ -65,8 +65,12 @@ namespace FleetServer
             FleetHearbeatEnum flags = FleetHearbeatEnum.NoUpdates; 
             using (var context = new FleetContext())
             {
+                var thisClient = context.Workstations.First(w => w.WorkstationIdentifier == token.Identifier);
+                thisClient.LastSeen = DateTime.Now;
+                context.SaveChanges();
+
                 var unseenMessages = context.MessageRecords
-                    .Where(r => r.Target.WorkstationIdentifier == token.Token)
+                    .Where(r => r.Target.WorkstationIdentifier == token.Identifier)
                     .Where(r => !r.HasBeenSeen);
 
                 if (unseenMessages.Any())
@@ -84,13 +88,15 @@ namespace FleetServer
                     .GetNewWorkstations(knownClientIdentifiers)
                     .Any(w => w.WorkstationIdentifier != token.Identifier);
 
-                if (newWorkstations) flags.AddFlag(FleetHearbeatEnum.ClientUpdate);
+                // TODO: Add concept of online for clients
+
+                if (newWorkstations) flags = flags.AddFlag(FleetHearbeatEnum.ClientUpdate);
             }
 
             // If thre are updates, remove the no update flag from the enum
             if (flags.GetValues<FleetHearbeatEnum>().Any(flag => flags.HasFlag(flag)))
             {
-                flags.RemoveFlag(FleetHearbeatEnum.NoUpdates);
+                flags = flags.RemoveFlag(FleetHearbeatEnum.NoUpdates);
             }
 
             return flags;
@@ -124,13 +130,22 @@ namespace FleetServer
             }
         }
 
+        /// <summary>
+        /// Returns a file given a fileId
+        /// </summary>
+        /// <param name="token">The client making the request</param>
+        /// <param name="fileId"></param>
+        /// <returns></returns>
         public FleetFile GetFile(FleetClientToken token, FleetFileIdentifier fileId)
         {
+            // TODO: Add security
+
             using (var context = new FleetContext())
             {
                 var message = context.Messages
                     .OfType<FileMessage>()
                     .Single(m => m.MessageId == int.Parse(fileId.Identifier));
+
                 var clientMessageRecord = context.MessageRecords
                     .Where(r => r.Message.MessageId == message.MessageId)
                     .Single(r => r.Target.WorkstationIdentifier == token.Identifier);

@@ -35,14 +35,14 @@ namespace FleetServer.Utils
             IEnumerable<string> knownWorkstations)
         {
             // For now, until we define context, assume all attached workstations are part of the same 
-                // "domain" or context
-                // only get clients that have been seen in the last 10 seconds
-                var lastSeenMinimum = DateTime.Now.AddSeconds(-10);
-                var candidateWorkstations = workstations
-                    .Where(w => w.LastSeen > lastSeenMinimum);
+            // "domain" or context
+            // only get clients that have been seen in the last 1 hour
+            var lastSeenMinimum = DateTime.Now.AddHours(-1);
+            var candidateWorkstations = workstations
+                .Where(w => w.LastSeen > lastSeenMinimum);
 
-                var allWorkstationIds = workstations.Select(w => w.WorkstationIdentifier);
-                var clientUnknowns = allWorkstationIds.Except(knownWorkstations);
+            var allWorkstationIds = workstations.Select(w => w.WorkstationIdentifier);
+            var clientUnknowns = allWorkstationIds.Except(knownWorkstations);
 
             return workstations.Where(w => clientUnknowns.Contains(w.WorkstationIdentifier));
         }
