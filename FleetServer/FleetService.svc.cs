@@ -1,6 +1,7 @@
 ﻿using FleetTransferObjects;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
@@ -95,19 +96,64 @@ namespace FleetServer
             return flags;
         }
 
-        // Files
+        /// <summary>
+        /// Returns a manifest of unseen files for this client
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public List<FleetFileIdentifier> QueryFiles(FleetClientToken token)
         {
-            return null;
+            using (var context = new FleetContext())
+            {
+
+                var records = context.MessageRecords
+                    .Include(r => r.Message)
+                    .Where(r => r.Target.WorkstationIdentifier == token.Identifier)
+                    .Where(r => !r.HasBeenSeen)
+                    .ToList() // Force query to resolve
+                    .Where(r => r.Message.GetType() == (typeof(FileMessage)))
+                    .Select(r => r.Message as FileMessage)
+                    .Select(m => new FleetFileIdentifier
+                    {
+                        FileName = m.FileName,
+                        FileSize = m.FileSize,
+                        Identifier = m.MessageId.ToString()
+                    }).ToList(); // Recast as list from IEnumerable
+
+                return records;
+            }
         }
 
         public FleetFile GetFile(FleetClientToken token, FleetFileIdentifier fileId)
         {
-            return null;
+            using (var context = new FleetContext())
+            {
+                var message = context.Messages
+                    .OfType<FileMessage>()
+                    .Single(m => m.MessageId == int.Parse(fileId.Identifier));
+                var clientMessageRecord = context.MessageRecords
+                    .Where(r => r.Message.MessageId == message.MessageId)
+                    .Single(r => r.Target.WorkstationIdentifier == token.Identifier);
+
+                clientMessageRecord.Received = DateTime.Now;
+
+                // TODO: Load file 
+
+                var file = new FleetFile
+                {
+                    FileName = message.FileName,
+                    FileContents = new byte[] {}
+                };
+
+                context.SaveChanges();
+                return file;
+            }
         }
 
         public Boolean SendFile(FleetClientToken token, FleetClientIdentifier recipient, FleetFile file)
         {
+            // TODO: this
+
             return false;
         }
 
