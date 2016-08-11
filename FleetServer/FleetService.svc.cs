@@ -45,7 +45,7 @@ namespace FleetServer
 
                 return new FleetClientToken
                 {
-                    Identifier = workstation.WorkstationId.GetHashCode().ToString(),
+                    Identifier = workstation.WorkstationIdentifier,
                     Token = workstation.WorkstationIdentifier
                 };
             }
