@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FleetEntityFramework.Models
 {
-    public class Message
+    public abstract class Message
     {
         [Key]
         public int MessageId { get; set; }
@@ -23,6 +23,8 @@ namespace FleetEntityFramework.Models
 
         [Required]
         public DateTime Sent { get; set; }
+
+        public virtual ICollection<WorkstationMessage> MessageRecords { get; set; } 
     }
 
     public class FileMessage : Message

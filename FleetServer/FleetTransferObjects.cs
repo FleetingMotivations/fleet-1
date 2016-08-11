@@ -63,19 +63,23 @@ namespace FleetTransferObjects
         public String WorkstationName { get; set; }
     }
 
+    [Flags]
     [DataContract]
     public enum FleetHearbeatEnum
     {
         [EnumMember]
-        ClientUpdate = 1 << 0,
+        NoUpdates = 1 << 0, // 0 is generally reserved for the default value
 
         [EnumMember]
-        ControlUpdate = 1 << 1,
+        ClientUpdate = 1 << 1,
 
         [EnumMember]
-        ManageUpdate = 1 << 2,
+        ControlUpdate = 1 << 2,
 
         [EnumMember]
-        FileAvailable = 1 << 3
+        ManageUpdate = 1 << 3,
+
+        [EnumMember]
+        FileAvailable = 1 << 4
     }
 }
