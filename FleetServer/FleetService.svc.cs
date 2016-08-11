@@ -18,36 +18,38 @@ namespace FleetServer
         // Registration
         public FleetClientToken RegisterClient(FleetClientRegistration registrationModel)
         {
-            // For now the unique hash will be the FriendlyName + Now hashed
-            var uniqueHash = (registrationModel.FriendlyName + DateTime.Now.ToString() 
-                /*+ registrationModel.IpAddress + registrationModel.MacAddress*/)
-                            .GetHashCode()
-                            .ToString(); // Super hacks for now
-
-            // TODO: Update to use dependency injection
-            using (var context = new FleetContext())
+            // For now the unique identifier will be the FriendlyName
+            var hash = registrationModel.FriendlyName.GetHashCode().ToString();
+            
+            // Creates a new database context.  This is a bad way to do it, but
+            // will suffice until we have DI
+            using (var context = new FleetContext()) 
             {
                 var workstation = context.Workstations
-                        .FirstOrDefault(s => s.WorkstationIdentifier == uniqueHash);
+                        .FirstOrDefault(s => s.WorkstationIdentifier == hash);
+
                 if (workstation == null)
                 {
-                    context.Workstations.Add(new FleetEntityFramework.Models.Workstation
+                    workstation = new FleetEntityFramework.Models.Workstation
                     {
                         FriendlyName = registrationModel.FriendlyName,
-                        WorkstationIdentifier = uniqueHash,
+                        WorkstationIdentifier = hash,
                         IpAddress = registrationModel.IpAddress,
                         MacAddress = registrationModel.MacAddress,
                         LastSeen = DateTime.Now
-                    });
+                    };
+                    context.Workstations.Add(workstation);
 
                     context.SaveChanges();
                 }
+
+                return new FleetClientToken
+                {
+                    //NOTE(Al): This is temporary, fix in future revisions
+                    Identifier = workstation.WorkstationIdentifier,
+                    Token = workstation.WorkstationIdentifier
+                };
             }
-            return new FleetClientToken
-            {
-                Identifier = uniqueHash,
-                Token = uniqueHash
-            };
         }
 
         //  Heartbeat
