@@ -45,6 +45,7 @@ namespace FleetServer
 
                 return new FleetClientToken
                 {
+                    //NOTE(Al): This is temporary, fix in future revisions
                     Identifier = workstation.WorkstationIdentifier,
                     Token = workstation.WorkstationIdentifier
                 };
