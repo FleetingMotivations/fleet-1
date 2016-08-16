@@ -1,1 +1,0 @@
-﻿<%@ ServiceHost Language="C#" Debug="true" Service="FleetServer.FleetService" CodeBehind="FleetService.svc.cs" %>

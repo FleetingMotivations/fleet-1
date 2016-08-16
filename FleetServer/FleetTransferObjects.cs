@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Runtime.Serialization;
 
-namespace FleetTransferObjects
+namespace FleetServer
 {
 
     [DataContract]
@@ -61,6 +61,20 @@ namespace FleetTransferObjects
 
         [DataMember]
         public String WorkstationName { get; set; }
+    }
+
+    // Messages
+
+    [DataContract]
+    public class FleetMessageIdentifier
+    {
+
+    }
+
+    [DataContract]
+    public class FleetMessage
+    {
+
     }
 
     [Flags]

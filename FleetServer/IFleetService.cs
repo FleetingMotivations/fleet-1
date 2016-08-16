@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
-using FleetTransferObjects;
 
 namespace FleetServer
 {
@@ -32,5 +31,19 @@ namespace FleetServer
 
         [OperationContract(Name = "SendFileMultipleRecipient")]
         Boolean SendFile(FleetClientToken token, List<FleetClientIdentifier> recipients, FleetFile file);
+
+        // Messages
+
+        [OperationContract]
+        List<FleetMessageIdentifier> QueryMessages(FleetClientToken token);
+
+        [OperationContract]
+        FleetMessage GetMessage(FleetClientToken token, FleetMessageIdentifier fileId);
+
+        [OperationContract(Name = "SendMessageSingleRecipient")]
+        Boolean SendMessage(FleetClientToken token, FleetClientIdentifier recipient, FleetMessage msg);
+
+        [OperationContract(Name = "SendMessageMultipleRecipient")]
+        Boolean SendMessage(FleetClientToken token, List<FleetClientIdentifier> recipients, FleetMessage msg);
     }
 }

@@ -1,13 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FleetEntityFramework", "FleetEntityFramework\FleetEntityFramework.csproj", "{D063F451-31E9-40E0-862F-22F51466B462}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FleetServer", "FleetServer\FleetServer.csproj", "{A68CB713-7617-4F5D-8037-F4419BC09608}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FleetServer", "FleetServer\FleetServer.csproj", "{BB044F0B-8B0E-403D-AD46-3E0D3AA63A81}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FleetServerClient", "FleetServerClient\FleetServerClient.shproj", "{0F72622D-6D08-4956-A41C-5976CC9F06FA}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		FleetServerClient\FleetServerClient.projitems*{0f72622d-6d08-4956-a41c-5976cc9f06fa}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -17,10 +22,10 @@ Global
 		{D063F451-31E9-40E0-862F-22F51466B462}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D063F451-31E9-40E0-862F-22F51466B462}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D063F451-31E9-40E0-862F-22F51466B462}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A68CB713-7617-4F5D-8037-F4419BC09608}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A68CB713-7617-4F5D-8037-F4419BC09608}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A68CB713-7617-4F5D-8037-F4419BC09608}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A68CB713-7617-4F5D-8037-F4419BC09608}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB044F0B-8B0E-403D-AD46-3E0D3AA63A81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB044F0B-8B0E-403D-AD46-3E0D3AA63A81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB044F0B-8B0E-403D-AD46-3E0D3AA63A81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB044F0B-8B0E-403D-AD46-3E0D3AA63A81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
