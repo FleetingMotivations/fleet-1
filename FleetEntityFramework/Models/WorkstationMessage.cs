@@ -22,7 +22,7 @@ namespace FleetEntityFramework.Models
         public Message Message { get; set; }
 
         // The DateTime at which the message was collected by the Target
-        public DateTime Received { get; set; } 
+        public DateTime? Received { get; set; } 
         public bool HasBeenSeen { get; set; }
     }
 }
