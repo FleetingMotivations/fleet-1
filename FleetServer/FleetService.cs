@@ -1,5 +1,4 @@
-﻿using FleetTransferObjects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -23,10 +22,10 @@ namespace FleetServer
         {
             // For now the unique identifier will be the FriendlyName
             var hash = registrationModel.FriendlyName.GetHashCode().ToString();
-            
+
             // Creates a new database context.  This is a bad way to do it, but
             // will suffice until we have DI
-            using (var context = new FleetContext()) 
+            using (var context = new FleetContext())
             {
                 var workstation = context.Workstations
                         .FirstOrDefault(s => s.WorkstationIdentifier == hash);
@@ -61,10 +60,10 @@ namespace FleetServer
         /// <param name="token"></param>
         /// <param name="knownClients">The querying clients list of current known clients</param>
         /// <returns></returns>
-        public FleetHearbeatEnum Heartbeat(FleetClientToken token, 
+        public FleetHearbeatEnum Heartbeat(FleetClientToken token,
             IEnumerable<FleetClientIdentifier> knownClients)
         {
-            FleetHearbeatEnum flags = FleetHearbeatEnum.NoUpdates; 
+            FleetHearbeatEnum flags = FleetHearbeatEnum.NoUpdates;
             using (var context = new FleetContext())
             {
                 var thisClient = context.Workstations.First(w => w.WorkstationIdentifier == token.Identifier);
@@ -159,7 +158,7 @@ namespace FleetServer
                 var file = new FleetFile
                 {
                     FileName = message.FileName,
-                    FileContents = new byte[] {}
+                    FileContents = new byte[] { }
                 };
 
                 context.SaveChanges();
@@ -175,6 +174,28 @@ namespace FleetServer
         }
 
         public Boolean SendFile(FleetClientToken token, List<FleetClientIdentifier> recipients, FleetFile file)
+        {
+            return false;
+        }
+
+        // Message
+
+        public List<FleetMessageIdentifier> QueryMessages(FleetClientToken token)
+        {
+            return null;
+        }
+
+        public FleetMessage GetMessage(FleetClientToken token, FleetMessageIdentifier fileId)
+        {
+            return null;
+        }
+
+        public Boolean SendMessage(FleetClientToken token, FleetClientIdentifier recipient, FleetMessage msg)
+        {
+            return false;
+        }
+
+        public Boolean SendMessage(FleetClientToken token, List<FleetClientIdentifier> recipients, FleetMessage msg)
         {
             return false;
         }

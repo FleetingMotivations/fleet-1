@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Web;
 using FleetEntityFramework.Models;
-using FleetTransferObjects;
 
 namespace FleetServer.Utils
 {
