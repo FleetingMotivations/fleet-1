@@ -1,3 +1,5 @@
+using FleetEntityFramework.Models;
+
 namespace FleetEntityFramework.Migrations
 {
     using System;
@@ -26,6 +28,11 @@ namespace FleetEntityFramework.Migrations
             //      new Person { FullName = "Rowan Miller" }
             //    );
             //
+
+            context.Applications.Add(new Application
+            {
+                ApplicationName = "FileSharer"
+            });
         }
     }
 }
