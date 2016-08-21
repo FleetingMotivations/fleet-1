@@ -169,9 +169,10 @@ namespace FleetServer
 
             using (var context = new FleetContext())
             {
+                var fileIdParsed = int.Parse(fileId.Identifier);
                 var message = context.Messages
                     .OfType<FileMessage>()
-                    .Single(m => m.MessageId == int.Parse(fileId.Identifier));
+                    .Single(m => m.MessageId == fileIdParsed);
 
                 var clientMessageRecord = context.MessageRecords
                     .Where(r => r.Message.MessageId == message.MessageId)
@@ -198,9 +199,9 @@ namespace FleetServer
                 var receiver = context.Workstations.First(w => w.WorkstationIdentifier == recipient.Identifier);
 
                 // TODO: resolve potential issues with write permissions against this directory
-                var writePath = Directory.GetCurrentDirectory() + $"/temp/{sender.WorkstationIdentifier}/{file.FileName}_{DateTime.Now}";
+                var writePath = $"{GenerateFilePath(token.Identifier)}/{file.FileName}_{DateTime.Now.GetHashCode()}";
 
-                WriteFile(file.FileContents, writePath);
+                writePath = WriteFile(file.FileContents, writePath);
 
                 var message = CreateFileManifest(sender, file, writePath, context);
 
@@ -209,6 +210,16 @@ namespace FleetServer
             }
 
             return true;
+        }
+
+        private string GenerateFilePath(string workstationId)
+        {
+            var path = $"temp/{workstationId}";
+            if (!Directory.Exists(path))
+            {
+                System.IO.Directory.CreateDirectory(path);
+            }
+            return path;
         }
 
         // Passing the context in will become better when we have dependancy injection
@@ -231,7 +242,8 @@ namespace FleetServer
                     FileName = file.FileName,
                     FileSize = file.FileContents.Length,    // Length in bytes D:
                     HasBeenScanned = false,
-                    Uri = filePath
+                    Uri = filePath,
+                    FileType = "jpg" // TODO: Update this to support decent file types
                 };
 
             context.FileMessages.Add(message);
@@ -266,11 +278,13 @@ namespace FleetServer
         /// </summary>
         /// <param name="contents"></param>
         /// <param name="path">The absolute path to which to write the file</param>
-        private void WriteFile(byte[] contents, string path)
+        private string WriteFile(byte[] contents, string path)
         {
             // TODO: Determine if there is a better way to do this
             try
             {
+                path = path.Replace(':', '_');
+                path = path.Replace(' ', '_');
                 using (var fileStream = new BinaryWriter(new FileStream(path, FileMode.CreateNew)))
                 {
                     foreach (var chunk in contents)
@@ -278,6 +292,7 @@ namespace FleetServer
                         fileStream.Write(chunk);
                     }
                 }
+                return path;
             }
             catch (Exception e)
             {
@@ -303,7 +318,7 @@ namespace FleetServer
             catch (Exception e)
             {
                 // Just give right up. 
-                throw new Exception($"Unable to write file.\n{e.Message}\n\n{e.InnerException}\n\n{e.StackTrace}");
+                throw new Exception($"Unable to read file.\n{e.Message}\n\n{e.InnerException}\n\n{e.StackTrace}");
             }
 
             return contents;
@@ -314,15 +329,16 @@ namespace FleetServer
             using (var context = new FleetContext())
             {
                 var sender = context.Workstations.First(w => w.WorkstationIdentifier == token.Identifier);
-                var receivers = context.Workstations.Where(w => recipients.Select(r => r.Identifier).Contains(w.WorkstationIdentifier));
-                var writePath = Directory.GetCurrentDirectory() + $"/temp/{sender.WorkstationIdentifier}/{file.FileName}_{DateTime.Now}";
+                // TODO:
+                var receiverIds = recipients.Select(r => r.Identifier); 
+                var receivers = context.Workstations.Where(w => receiverIds.Contains(w.WorkstationIdentifier));
+                var writePath = $"{GenerateFilePath(token.Identifier)}/{file.FileName}_{DateTime.Now.GetHashCode()}";
 
-                WriteFile(file.FileContents, writePath);
+                writePath = WriteFile(file.FileContents, writePath);
 
                 var message = CreateFileManifest(sender, file, writePath, context);
-
+                
                 CreateFileRecords(message, receivers.Select(r => r.WorkstationId).ToArray(), context);
-               
             }
 
             return true;
