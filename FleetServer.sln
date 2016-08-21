@@ -9,8 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FleetServer", "FleetServer\
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FleetServerClient", "lib\FleetServerClient\FleetServerClient.shproj", "{0F72622D-6D08-4956-A41C-5976CC9F06FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestClient", "TestClient\TestClient.csproj", "{6C20820A-C378-4A5A-995D-63F36655ABBF}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		lib\FleetServerClient\FleetServerClient.projitems*{6c20820a-c378-4a5a-995d-63f36655abbf}*SharedItemsImports = 4
 		lib\FleetServerClient\FleetServerClient.projitems*{0f72622d-6d08-4956-a41c-5976cc9f06fa}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +29,10 @@ Global
 		{BB044F0B-8B0E-403D-AD46-3E0D3AA63A81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB044F0B-8B0E-403D-AD46-3E0D3AA63A81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB044F0B-8B0E-403D-AD46-3E0D3AA63A81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C20820A-C378-4A5A-995D-63F36655ABBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C20820A-C378-4A5A-995D-63F36655ABBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C20820A-C378-4A5A-995D-63F36655ABBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C20820A-C378-4A5A-995D-63F36655ABBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
