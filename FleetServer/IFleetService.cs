@@ -37,7 +37,6 @@ namespace FleetServer
         Boolean SendFile(FleetClientToken token, List<FleetClientIdentifier> recipients, FleetFile file);
 
         // Messages
-
         [OperationContract]
         List<FleetMessageIdentifier> QueryMessages(FleetClientToken token);
 
