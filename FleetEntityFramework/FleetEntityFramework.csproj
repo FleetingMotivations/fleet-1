@@ -65,6 +65,10 @@
     <Compile Include="Migrations\201608090811490_MakeRoomIdNull.Designer.cs">
       <DependentUpon>201608090811490_MakeRoomIdNull.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201608161402374_MessageReceivedNullable.cs" />
+    <Compile Include="Migrations\201608161402374_MessageReceivedNullable.Designer.cs">
+      <DependentUpon>201608161402374_MessageReceivedNullable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Application.cs" />
     <Compile Include="Models\Building.cs" />
@@ -93,6 +97,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201608090811490_MakeRoomIdNull.resx">
       <DependentUpon>201608090811490_MakeRoomIdNull.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608161402374_MessageReceivedNullable.resx">
+      <DependentUpon>201608161402374_MessageReceivedNullable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

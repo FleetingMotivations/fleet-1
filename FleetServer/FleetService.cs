@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Text;
 using FleetEntityFramework.DAL;
 using FleetEntityFramework.Models;
 using FleetServer.Utils;
+using System.IO;
 
 namespace FleetServer
 {
@@ -104,6 +106,30 @@ namespace FleetServer
         }
 
         /// <summary>
+        /// Will return a list of all the clients on the server
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public List<FleetClientIdentifier> QueryClients(FleetClientToken token)
+        {
+            using (var context = new FleetContext())
+            {
+                var thisWorkstation = context.Workstations
+                    .Where(w => w.WorkstationIdentifier == token.Identifier);
+
+                var allWorkstations = context.Workstations
+                    .Except(thisWorkstation)
+                    .Select(w => new FleetClientIdentifier
+                        {
+                            Identifier = w.WorkstationIdentifier,
+                            WorkstationName = w.FriendlyName
+                        });
+
+                return allWorkstations.ToList();
+            }
+        }
+
+        /// <summary>
         /// Returns a manifest of unseen files for this client
         /// </summary>
         /// <param name="token"></param>
@@ -153,12 +179,10 @@ namespace FleetServer
 
                 clientMessageRecord.Received = DateTime.Now;
 
-                // TODO: Load file 
-
                 var file = new FleetFile
                 {
                     FileName = message.FileName,
-                    FileContents = new byte[] { }
+                    FileContents = ReadFile(message.Uri)
                 };
 
                 context.SaveChanges();
@@ -168,14 +192,140 @@ namespace FleetServer
 
         public Boolean SendFile(FleetClientToken token, FleetClientIdentifier recipient, FleetFile file)
         {
-            // TODO: this
+            using (var context = new FleetContext())
+            {
+                var sender = context.Workstations.First(w => w.WorkstationIdentifier == token.Identifier);
+                var receiver = context.Workstations.First(w => w.WorkstationIdentifier == recipient.Identifier);
 
-            return false;
+                // TODO: resolve potential issues with write permissions against this directory
+                var writePath = Directory.GetCurrentDirectory() + $"/temp/{sender.WorkstationIdentifier}/{file.FileName}_{DateTime.Now}";
+
+                WriteFile(file.FileContents, writePath);
+
+                var message = CreateFileManifest(sender, file, writePath, context);
+
+                CreateFileRecords(message, new [] { receiver.WorkstationId }, context);
+               
+            }
+
+            return true;
+        }
+
+        // Passing the context in will become better when we have dependancy injection
+        /// <summary>
+        /// Will create and save to the database a file manifest
+        /// </summary>
+        /// <param name="sender">The sending workstation of the file</param>
+        /// <param name="file">The file information from the client</param>
+        /// <param name="filePath">The filepath at which the file is saved</param>
+        /// <param name="context">the DbContext (to be removed with DI)</param>
+        /// <returns></returns>
+        private Message CreateFileManifest(Workstation sender, FleetFile file, string filePath, FleetContext context)
+        {
+            var message = new FileMessage
+                {
+                    WorkstationId = sender.WorkstationId,
+                    ApplicationId = context.Applications.First().ApplicationId,
+                    // TODO: Update this to support application resolution
+                    Sent = DateTime.Now,
+                    FileName = file.FileName,
+                    FileSize = file.FileContents.Length,    // Length in bytes D:
+                    HasBeenScanned = false,
+                    Uri = filePath
+                };
+
+            context.FileMessages.Add(message);
+            context.SaveChanges();
+
+            return message;
+        }
+
+        /// <summary>
+        /// Will create a collecton of file records associated with a file and save to the database
+        /// </summary>
+        /// <param name="message">The message the records are associated with</param>
+        /// <param name="targetIds">The id's of the clients to which the message is targeted at</param>
+        /// <param name="context">Db context (to be removed with DI)</param>
+        private void CreateFileRecords(Message message, int[] targetIds, FleetContext context)
+        {
+            IList<WorkstationMessage> records = targetIds.Select(t => new WorkstationMessage
+            {
+                WorkStationId = t,
+                MessageId = message.MessageId,
+                Received = null,
+                HasBeenSeen = false
+            }).ToList();
+
+            message.MessageRecords = records;
+
+            context.SaveChanges();
+        }
+
+        /// <summary>
+        /// Writes a file to disk
+        /// </summary>
+        /// <param name="contents"></param>
+        /// <param name="path">The absolute path to which to write the file</param>
+        private void WriteFile(byte[] contents, string path)
+        {
+            // TODO: Determine if there is a better way to do this
+            try
+            {
+                using (var fileStream = new BinaryWriter(new FileStream(path, FileMode.CreateNew)))
+                {
+                    foreach (var chunk in contents)
+                    {
+                        fileStream.Write(chunk);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                // Just give right up. 
+                throw new Exception($"Unable to write file.\n{e.Message}\n\n{e.InnerException}\n\n{e.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// Writes a file to disk
+        /// </summary>
+        /// <param name="contents"></param>
+        /// <param name="path">The absolute path to which to write the file</param>
+        private byte[] ReadFile(string path)
+        {
+            // TODO: Determine if there is a better way to do this
+            byte[] contents = null;
+
+            try
+            {
+                contents = File.ReadAllBytes(path);
+            }
+            catch (Exception e)
+            {
+                // Just give right up. 
+                throw new Exception($"Unable to write file.\n{e.Message}\n\n{e.InnerException}\n\n{e.StackTrace}");
+            }
+
+            return contents;
         }
 
         public Boolean SendFile(FleetClientToken token, List<FleetClientIdentifier> recipients, FleetFile file)
         {
-            return false;
+            using (var context = new FleetContext())
+            {
+                var sender = context.Workstations.First(w => w.WorkstationIdentifier == token.Identifier);
+                var receivers = context.Workstations.Where(w => recipients.Select(r => r.Identifier).Contains(w.WorkstationIdentifier));
+                var writePath = Directory.GetCurrentDirectory() + $"/temp/{sender.WorkstationIdentifier}/{file.FileName}_{DateTime.Now}";
+
+                WriteFile(file.FileContents, writePath);
+
+                var message = CreateFileManifest(sender, file, writePath, context);
+
+                CreateFileRecords(message, receivers.Select(r => r.WorkstationId).ToArray(), context);
+               
+            }
+
+            return true;
         }
 
         // Message handling
