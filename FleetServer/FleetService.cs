@@ -62,8 +62,7 @@ namespace FleetServer
         /// <param name="token"></param>
         /// <param name="knownClients">The querying clients list of current known clients</param>
         /// <returns></returns>
-        public FleetHearbeatEnum Heartbeat(FleetClientToken token,
-            IEnumerable<FleetClientIdentifier> knownClients)
+        public FleetHearbeatEnum Heartbeat(FleetClientToken token) 
         {
             FleetHearbeatEnum flags = FleetHearbeatEnum.NoUpdates;
             using (var context = new FleetContext())
@@ -86,10 +85,14 @@ namespace FleetServer
                     context.SaveChanges();
                 }
 
-                var knownClientIdentifiers = knownClients.Select(c => c.WorkstationName);
-                var newWorkstations = context.Workstations
+
+                var newWorkstations = true; // TODO: Figure out something to do here
+                    
+                    /*
+                    context.Workstations
                     .GetNewWorkstations(knownClientIdentifiers)
                     .Any(w => w.WorkstationIdentifier != token.Identifier);
+                    */
 
                 // TODO: Add concept of online for clients
 
@@ -150,7 +153,8 @@ namespace FleetServer
                     {
                         FileName = m.FileName,
                         FileSize = m.FileSize,
-                        Identifier = m.MessageId.ToString()
+                        Identifier = m.MessageId.ToString(),
+                        SenderName = m.Sender.FriendlyName
                     }).ToList(); // Recast as list from IEnumerable
 
                 return records;

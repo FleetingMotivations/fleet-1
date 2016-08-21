@@ -41,6 +41,9 @@ namespace FleetServer
 
         [DataMember]
         public Int32 FileSize { get; set; }
+
+        [DataMember]
+        public string SenderName { get; set; }
     }
 
     [DataContract]
