@@ -104,6 +104,30 @@ namespace FleetServer
         }
 
         /// <summary>
+        /// Will return a list of all the clients on the server
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public List<FleetClientIdentifier> QueryClients(FleetClientToken token)
+        {
+            using (var context = new FleetContext())
+            {
+                var thisWorkstation = context.Workstations
+                    .Where(w => w.WorkstationIdentifier == token.Identifier);
+
+                var allWorkstations = context.Workstations
+                    .Except(thisWorkstation)
+                    .Select(w => new FleetClientIdentifier
+                        {
+                            Identifier = w.WorkstationIdentifier,
+                            WorkstationName = w.FriendlyName
+                        });
+
+                return allWorkstations.ToList();
+            }
+        }
+
+        /// <summary>
         /// Returns a manifest of unseen files for this client
         /// </summary>
         /// <param name="token"></param>

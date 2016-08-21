@@ -19,6 +19,10 @@ namespace FleetServer
         [OperationContract]
         FleetHearbeatEnum Heartbeat(FleetClientToken token, IEnumerable<FleetClientIdentifier> knownClients);
 
+        // Clients
+        [OperationContract]
+        List<FleetClientIdentifier> QueryClients(FleetClientToken token);
+
         // Files
         [OperationContract]
         List<FleetFileIdentifier> QueryFiles(FleetClientToken token);
