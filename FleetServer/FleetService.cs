@@ -178,25 +178,128 @@ namespace FleetServer
             return false;
         }
 
-        // Message
+        // Message handling
 
         public List<FleetMessageIdentifier> QueryMessages(FleetClientToken token)
         {
-            return null;
+            using (var ctx = new FleetContext())
+            {
+                // Get unseen messages for client
+                var messages = ctx.MessageRecords
+                    .Include(r => r.Message)
+                    .Where(mr => mr.Target.WorkstationIdentifier == token.Identifier) 
+                    .Where(mr => !mr.HasBeenSeen)
+                    .ToList()
+                    .Where(mr => mr.GetType() == typeof(AppMessage))
+                    .Select(mr => mr.Message as AppMessage)
+                    .ToList();
+
+                /*var records = context.MessageRecords
+                    .Include(r => r.Message)
+                    .Where(r => r.Target.WorkstationIdentifier == token.Identifier)
+                    .Where(r => !r.HasBeenSeen)
+                    .ToList() // Force query to resolve
+                    .Where(r => r.Message.GetType() == (typeof(FileMessage)))
+                    .Select(r => r.Message as FileMessage)
+                    .Select(m => new FleetFileIdentifier
+                    {
+                        FileName = m.FileName,
+                        FileSize = m.FileSize,
+                        Identifier = m.MessageId.ToString()
+                    }).ToList(); // Recast as list from IEnumerable*/
+
+                // Create message 
+                var messageIdentifiers = new List<FleetMessageIdentifier>();
+                foreach (var msg in messages)
+                {
+                    var msgId = new FleetMessageIdentifier();
+                    msgId.ApplicationId = msg.ApplicationId;
+                    msgId.Identifier = msg.MessageId;
+                    messageIdentifiers.Add(msgId);
+                }
+
+                return messageIdentifiers;
+            }
         }
 
-        public FleetMessage GetMessage(FleetClientToken token, FleetMessageIdentifier fileId)
+        public FleetMessage GetMessage(FleetClientToken token, FleetMessageIdentifier messageId)
         {
-            return null;
+            using (var ctx = new FleetContext())
+            {
+                var message = ctx.AppMessages
+                    .Where(msg => msg.MessageId == messageId.Identifier)
+                    .FirstOrDefault();
+
+                if (message == null)
+                {
+                    throw new Exception("Invalid Message ID");
+                }
+
+                var clientMessageRecord = ctx.MessageRecords
+                    .Where(r => r.Message.MessageId == message.MessageId)
+                    .Single(r => r.Target.WorkstationIdentifier == token.Identifier);
+
+                clientMessageRecord.Received = DateTime.Now;
+                clientMessageRecord.HasBeenSeen = true;
+
+                var sendMessage = new FleetMessage();
+                sendMessage.ApplicationId = message.ApplicationId;
+                sendMessage.Identifier = message.MessageId;
+                sendMessage.Sent = message.Sent;
+                sendMessage.Message = message.Message;
+
+                ctx.SaveChanges();
+                return sendMessage;
+            }
         }
 
         public Boolean SendMessage(FleetClientToken token, FleetClientIdentifier recipient, FleetMessage msg)
         {
-            return false;
+            var recipients = new List<FleetClientIdentifier>();
+            recipients.Add(recipient);
+            return SendMessage(token, recipients, msg);
         }
 
         public Boolean SendMessage(FleetClientToken token, List<FleetClientIdentifier> recipients, FleetMessage msg)
         {
+            using (var ctx = new FleetContext())
+            {
+                // Get the workstation record
+                // todo: This will need to be updated
+                Workstation senderWorkstation = ctx.Workstations
+                    .Where(wks => wks.WorkstationIdentifier == token.Identifier)
+                    .FirstOrDefault();
+                // Get the application record
+                Application targetApplication = ctx.Applications
+                    .Where(app => app.ApplicationId == msg.ApplicationId)
+                    .FirstOrDefault();
+
+                // Make message
+                var message = new AppMessage();
+                message.TargetApplication = targetApplication;
+                message.Message = msg.Message;
+                message.Sender = senderWorkstation;
+                message.Sent = msg.Sent;
+                message.MessageRecords = new List<WorkstationMessage>();
+
+                // Create database records for each recipient
+                foreach (var recipient in recipients)
+                {
+                    // Get recipient workstation record
+                    Workstation recipientWorkstation = ctx.Workstations
+                        .Where(wks => wks.WorkstationIdentifier == recipient.Identifier)
+                        .FirstOrDefault();
+
+                    var wksMessage = new WorkstationMessage();
+                    wksMessage.Message = message;
+                    wksMessage.Target = recipientWorkstation;
+                }
+
+                ctx.AppMessages.Add(message);
+
+                return true;
+            }
+
             return false;
         }
     }

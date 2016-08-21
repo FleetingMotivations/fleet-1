@@ -7,12 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FleetEntityFramework", "Fle
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FleetServer", "FleetServer\FleetServer.csproj", "{BB044F0B-8B0E-403D-AD46-3E0D3AA63A81}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "FleetServerClient", "FleetServerClient\FleetServerClient.shproj", "{0F72622D-6D08-4956-A41C-5976CC9F06FA}"
-EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		FleetServerClient\FleetServerClient.projitems*{0f72622d-6d08-4956-a41c-5976cc9f06fa}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

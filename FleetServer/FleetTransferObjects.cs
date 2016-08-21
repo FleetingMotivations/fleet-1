@@ -68,13 +68,27 @@ namespace FleetServer
     [DataContract]
     public class FleetMessageIdentifier
     {
+        [DataMember]
+        public Int32 Identifier { get; set; }
 
+        [DataMember]
+        public Int32 ApplicationId { get; set; }
     }
 
     [DataContract]
     public class FleetMessage
     {
+        [DataMember]
+        public Int32 Identifier { get; set; }
 
+        [DataMember]
+        public Int32 ApplicationId { get; set; }
+
+        [DataMember]
+        public DateTime Sent { get; set; }
+
+        [DataMember]
+        public String Message { get; set; }
     }
 
     [Flags]
