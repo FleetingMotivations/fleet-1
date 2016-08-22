@@ -145,9 +145,9 @@ namespace FleetServer
                 var records = context.MessageRecords
                     .Include(r => r.Message)
                     .Where(r => r.Target.WorkstationIdentifier == token.Identifier)
-                    .Where(r => !r.HasBeenSeen)
+                    .Where(r => r.Received == null)
                     .ToList() // Force query to resolve
-                    .Where(r => r.Message.GetType() == (typeof(FileMessage)))
+                    .Where(r => r.Message is FileMessage)
                     .Select(r => r.Message as FileMessage)
                     .Select(m => new FleetFileIdentifier
                     {
@@ -357,10 +357,10 @@ namespace FleetServer
                 // Get unseen messages for client
                 var messages = ctx.MessageRecords
                     .Include(r => r.Message)
-                    .Where(mr => mr.Target.WorkstationIdentifier == token.Identifier) 
-                    .Where(mr => !mr.HasBeenSeen)
+                    .Where(mr => mr.Target.WorkstationIdentifier == token.Identifier)
+                    .Where(r => r.Received == null)
                     .ToList()
-                    .Where(mr => mr.GetType() == typeof(AppMessage))
+                    .Where(mr => mr.Message is AppMessage)
                     .Select(mr => mr.Message as AppMessage)
                     .ToList();
 
