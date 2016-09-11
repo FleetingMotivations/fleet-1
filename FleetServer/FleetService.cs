@@ -36,10 +36,9 @@ namespace FleetServer
                 {
                     workstation = new FleetEntityFramework.Models.Workstation
                     {
+                        RoomID = context.Rooms.Single(r => r.RoomIdentifier == registrationModel.RoomIdentifier).RoomId,
                         FriendlyName = registrationModel.FriendlyName,
                         WorkstationIdentifier = hash,
-                        IpAddress = registrationModel.IpAddress,
-                        MacAddress = registrationModel.MacAddress,
                         LastSeen = DateTime.Now
                     };
                     context.Workstations.Add(workstation);
@@ -139,32 +138,107 @@ namespace FleetServer
         }
 
         /// <summary>
+        /// Returns the current hierachy of workstations
+        /// </summary>
+        /// <returns></returns>
+        public FleetWorkstationHierachy QueryWorkstationHierachy()
+        {
+            using (var context = new FleetContext())
+            {
+                // This entire hideous chain could be better done using automapper
+                return new FleetWorkstationHierachy
+                {
+                    Campuses = context.Campuses.Select(c => new FleetCampusIdentifier
+                    {
+                        Name = c.CampusIdentifer,
+                        Id = c.CampusId,
+                        Buildings = c.Buildings.Select(b => new FleetBuildingIdentifier
+                        {
+                            Name = b.BuildingIdentifier,
+                            Id = b.BuildingId,
+                            Rooms = b.Rooms.Select(r => new FleetRoomIdentifier
+                            {
+                                Name = r.RoomIdentifier,
+                                Id = r.RoomId,
+                                Clients = r.Workstations.Select(w => new FleetClientIdentifier
+                                {
+                                    Identifier = w.WorkstationIdentifier,
+                                    LastSeen = w.LastSeen,
+                                    WorkstationName = w.FriendlyName
+                                }).ToList()
+                            }).ToList()
+                        }).ToList()
+                    }).ToList()
+                };
+            }
+        }
+
+        /// <summary>
         /// Will return a list of all the clients on the server
         /// </summary>
         /// <param name="token"></param>
+        /// <param name="clientContext">The context from which to retrieve clients</param>
+        /// <param name="id">The id of the context from which to retrieve clients</param>
         /// <returns></returns>
-        public List<FleetClientIdentifier> QueryClients(FleetClientToken token)
+        public List<FleetClientIdentifier> QueryClients(FleetClientToken token, FleetClientContext clientContext, int id)
         {
             using (var context = new FleetContext())
             {
                 var thisWorkstation = context.Workstations
                     .Where(w => w.WorkstationIdentifier == token.Identifier);
 
-                // This needs to be updated to select based on the required context
+                IEnumerable<Workstation> workstations;
 
-                // If this current machine is in a workgroup, then only return the workstations
-                // that are a part of the workgroup, otherwise, return the workstations that are in the 
-                // required context
+                switch (clientContext)
+                {
+                    case FleetClientContext.Room:
+                    {
+                        workstations = context.Rooms
+                                .Single(r => r.RoomId == id).Workstations;
+                        break;
+                    }
 
-                var allWorkstations = context.Workstations
-                    .Except(thisWorkstation)
-                    .Select(w => new FleetClientIdentifier
-                        {
-                            Identifier = w.WorkstationIdentifier,
-                            WorkstationName = w.FriendlyName
-                        });
+                    case FleetClientContext.Building:
+                    {
+                        workstations = context.Buildings
+                                .Single(b => b.BuildingId == id)
+                                .Rooms.SelectMany(r => r.Workstations);
+                        break;
+                    }
+                    
+                    case FleetClientContext.Campus:
+                    {
+                        workstations = context.Campuses
+                            .Single(c => c.CampusId == id)
+                            .Buildings.SelectMany(b => b.Rooms)
+                            .SelectMany(r => r.Workstations);
+                        break;
+                    }
 
-                return allWorkstations.ToList();
+                    case FleetClientContext.Workgroup:
+                    {
+                        workstations = context.WorkgroupMembers
+                            .Where(wg => wg.WorkgroupId == id)
+                            .Select(w => w.Workstation);
+                        break;
+                    }
+
+                    default:
+                    {
+                        workstations = context.Rooms
+                            .Single(r => r.RoomId == thisWorkstation.First().RoomID)
+                            .Workstations;
+                        break;
+                    }
+                }
+
+                workstations = workstations.Except(thisWorkstation);
+                return workstations.Select(w => new FleetClientIdentifier
+                {
+                    WorkstationName = w.FriendlyName,
+                    Identifier = w.WorkstationIdentifier,
+                    LastSeen = w.LastSeen
+                }).ToList();
             }
         }
 

@@ -21,10 +21,15 @@ namespace FleetServer
 
         // Clients
         [OperationContract]
-        List<FleetClientIdentifier> QueryClients(FleetClientToken token);
+        List<FleetClientIdentifier> QueryClients(FleetClientToken token, FleetClientContext context, int id);
 
+        // Control
         [OperationContract]
         FleetControlStatus QueryControlStatus(FleetClientToken token);
+
+        // 
+        [OperationContract]
+        FleetWorkstationHierachy QueryWorkstationHierachy();
 
         // Files
         [OperationContract]

@@ -14,10 +14,7 @@ namespace FleetServer
         public string FriendlyName { get; set; }
 
         [DataMember]
-        public string IpAddress { get; set; }
-
-        [DataMember]
-        public string MacAddress { get; set; }
+        public string RoomIdentifier { get; set; }
     }
 
     [DataContract]
@@ -77,6 +74,9 @@ namespace FleetServer
 
         [DataMember]
         public String WorkstationName { get; set; }
+
+        [DataMember]
+        public DateTime LastSeen { get; set; }
     }
 
     // Messages
@@ -117,6 +117,36 @@ namespace FleetServer
         public String Message { get; set; }
     }
 
+    [DataContract]
+    public class FleetWorkstationHierachy
+    {
+        public List<FleetCampusIdentifier> Campuses { get; set; } 
+    }
+
+    [DataContract]
+    public class FleetCampusIdentifier
+    {
+        public string Name { get; set; }
+        public int Id { get; set; }
+        public List<FleetBuildingIdentifier> Buildings { get; set; } 
+    }
+
+    [DataContract]
+    public class FleetBuildingIdentifier
+    {
+        public string Name { get; set; }
+        public int Id { get; set; }
+        public List<FleetRoomIdentifier> Rooms { get; set; } 
+    }
+
+    [DataContract]
+    public class FleetRoomIdentifier
+    {
+        public string Name { get; set; }
+        public int Id { get; set; }
+        public List<FleetClientIdentifier> Clients { get; set; } 
+    }
+
     [Flags]
     [DataContract]
     public enum FleetHearbeatEnum
@@ -132,5 +162,22 @@ namespace FleetServer
 
         [EnumMember]
         FileAvailable = 1 << 3
+    }
+
+    [Flags]
+    [DataContract]
+    public enum FleetClientContext
+    {
+        [EnumMember]
+        Room = 1 << 0,
+
+        [EnumMember]
+        Building = 1 << 2,
+
+        [EnumMember]
+        Campus = 1 << 3,
+
+        [EnumMember]
+        Workgroup = 1 << 4
     }
 }

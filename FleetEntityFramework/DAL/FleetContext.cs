@@ -15,8 +15,8 @@ namespace FleetEntityFramework.DAL
 
         public IDbSet<Workstation> Workstations { get; set; }
         public IDbSet<Room> Rooms { get; set; }
-        public IDbSet<Campus> Campus { get; set; }
-        public IDbSet<Building> Building { get; set; }
+        public IDbSet<Campus> Campuses { get; set; }
+        public IDbSet<Building> Buildings { get; set; }
         public IDbSet<Application> Applications { get; set; }
         public IDbSet<Message> Messages { get; set; }
         public IDbSet<FileMessage> FileMessages { get; set; }
