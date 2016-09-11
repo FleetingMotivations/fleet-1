@@ -1,3 +1,6 @@
 [submodule "lib/FleetServerClient"]
 	path = lib/FleetServerClient
 	url = https://github.com/FleetingMotivations/FleetServerClient
+[submodule "lib/FleetEntityFramework"]
+	path = lib/FleetEntityFramework
+	url = https://github.com/FleetingMotivations/FleetEntityFramework

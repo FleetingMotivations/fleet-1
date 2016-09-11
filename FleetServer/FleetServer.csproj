@@ -65,7 +65,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FleetEntityFramework\FleetEntityFramework.csproj">
+    <ProjectReference Include="..\lib\FleetEntityFramework\FleetEntityFramework.csproj">
       <Project>{d063f451-31e9-40e0-862f-22f51466b462}</Project>
       <Name>FleetEntityFramework</Name>
     </ProjectReference>
