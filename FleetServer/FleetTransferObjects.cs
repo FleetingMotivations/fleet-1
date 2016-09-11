@@ -14,10 +14,20 @@ namespace FleetServer
         public string FriendlyName { get; set; }
 
         [DataMember]
-        public string IpAddress { get; set; }
+        public string RoomIdentifier { get; set; }
+    }
+
+    [DataContract]
+    public class FleetControlStatus
+    {
+        [DataMember]
+        public int WorkgroupId { get; set; }
 
         [DataMember]
-        public string MacAddress { get; set; }
+        public bool CanShare { get; set; }
+
+        [DataMember]
+        public List<FleetApplicationIdentifier> AllowedApplications { get; set; }
     }
 
     [DataContract]
@@ -64,6 +74,9 @@ namespace FleetServer
 
         [DataMember]
         public String WorkstationName { get; set; }
+
+        [DataMember]
+        public DateTime LastSeen { get; set; }
     }
 
     // Messages
@@ -76,6 +89,16 @@ namespace FleetServer
 
         [DataMember]
         public Int32 ApplicationId { get; set; }
+    }
+
+    [DataContract]
+    public class FleetApplicationIdentifier
+    {
+        [DataMember]
+        public int ApplicationId { get; set; }
+        
+        [DataMember]
+        public string ApplicationName { get; set; }
     }
 
     [DataContract]
@@ -94,6 +117,36 @@ namespace FleetServer
         public String Message { get; set; }
     }
 
+    [DataContract]
+    public class FleetWorkstationHierachy
+    {
+        public List<FleetCampusIdentifier> Campuses { get; set; } 
+    }
+
+    [DataContract]
+    public class FleetCampusIdentifier
+    {
+        public string Name { get; set; }
+        public int Id { get; set; }
+        public List<FleetBuildingIdentifier> Buildings { get; set; } 
+    }
+
+    [DataContract]
+    public class FleetBuildingIdentifier
+    {
+        public string Name { get; set; }
+        public int Id { get; set; }
+        public List<FleetRoomIdentifier> Rooms { get; set; } 
+    }
+
+    [DataContract]
+    public class FleetRoomIdentifier
+    {
+        public string Name { get; set; }
+        public int Id { get; set; }
+        public List<FleetClientIdentifier> Clients { get; set; } 
+    }
+
     [Flags]
     [DataContract]
     public enum FleetHearbeatEnum
@@ -102,15 +155,29 @@ namespace FleetServer
         NoUpdates = 1 << 0, // 0 is generally reserved for the default value
 
         [EnumMember]
-        ClientUpdate = 1 << 1,
-
-        [EnumMember]
-        ControlUpdate = 1 << 2,
+        InWorkgroup = 1 << 2,
 
         [EnumMember]
         ManageUpdate = 1 << 3,
 
         [EnumMember]
-        FileAvailable = 1 << 4
+        FileAvailable = 1 << 3
+    }
+
+    [Flags]
+    [DataContract]
+    public enum FleetClientContext
+    {
+        [EnumMember]
+        Room = 1 << 0,
+
+        [EnumMember]
+        Building = 1 << 2,
+
+        [EnumMember]
+        Campus = 1 << 3,
+
+        [EnumMember]
+        Workgroup = 1 << 4
     }
 }
