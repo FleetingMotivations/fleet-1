@@ -21,6 +21,19 @@ namespace FleetServer
     }
 
     [DataContract]
+    public class FleetControlStatus
+    {
+        [DataMember]
+        public int WorkgroupId { get; set; }
+
+        [DataMember]
+        public bool CanShare { get; set; }
+
+        [DataMember]
+        public List<FleetApplicationIdentifier> AllowedApplications { get; set; }
+    }
+
+    [DataContract]
     public class FleetFile
     {
         [DataMember]
@@ -79,6 +92,16 @@ namespace FleetServer
     }
 
     [DataContract]
+    public class FleetApplicationIdentifier
+    {
+        [DataMember]
+        public int ApplicationId { get; set; }
+        
+        [DataMember]
+        public string ApplicationName { get; set; }
+    }
+
+    [DataContract]
     public class FleetMessage
     {
         [DataMember]
@@ -102,15 +125,12 @@ namespace FleetServer
         NoUpdates = 1 << 0, // 0 is generally reserved for the default value
 
         [EnumMember]
-        ClientUpdate = 1 << 1,
-
-        [EnumMember]
-        ControlUpdate = 1 << 2,
+        InWorkgroup = 1 << 2,
 
         [EnumMember]
         ManageUpdate = 1 << 3,
 
         [EnumMember]
-        FileAvailable = 1 << 4
+        FileAvailable = 1 << 3
     }
 }

@@ -23,6 +23,9 @@ namespace FleetServer
         [OperationContract]
         List<FleetClientIdentifier> QueryClients(FleetClientToken token);
 
+        [OperationContract]
+        FleetControlStatus QueryControlStatus(FleetClientToken token);
+
         // Files
         [OperationContract]
         List<FleetFileIdentifier> QueryFiles(FleetClientToken token);

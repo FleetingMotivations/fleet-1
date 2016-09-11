@@ -71,6 +71,7 @@ namespace FleetServer
                 thisClient.LastSeen = DateTime.Now;
                 context.SaveChanges();
 
+                // Check for unseen messages
                 var unseenMessages = context.MessageRecords
                     .Where(r => r.Target.WorkstationIdentifier == token.Identifier)
                     .Where(r => !r.HasBeenSeen);
@@ -85,18 +86,14 @@ namespace FleetServer
                     context.SaveChanges();
                 }
 
+                // Check for any command / control updates
+                if (context.Workgroups.Where(Workgroup.IsInWorkgroup(thisClient)).Any())
+                {
+                    flags = flags.AddFlag(FleetHearbeatEnum.InWorkgroup);
+                }
 
-                var newWorkstations = true; // TODO: Figure out something to do here
-                    
-                    /*
-                    context.Workstations
-                    .GetNewWorkstations(knownClientIdentifiers)
-                    .Any(w => w.WorkstationIdentifier != token.Identifier);
-                    */
-
-                // TODO: Add concept of online for clients
-
-                if (newWorkstations) flags = flags.AddFlag(FleetHearbeatEnum.ClientUpdate);
+                // This is deprecated. Workstations are requested on demand
+                // if (newWorkstations) flags = flags.AddFlag(FleetHearbeatEnum.ClientUpdate);
             }
 
             // If thre are updates, remove the no update flag from the enum
@@ -106,6 +103,39 @@ namespace FleetServer
             }
 
             return flags;
+        }
+
+        /// <summary>
+        /// Returns the current control status of the client, or null if there are no control operations
+        /// acting on the client
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>FleetControlStatus or null</returns>
+        public FleetControlStatus QueryControlStatus(FleetClientToken token)
+        {
+            using (var context = new FleetContext())
+            {
+                var thisClient = context.Workstations.Single(w => w.WorkstationIdentifier == token.Identifier);
+                var workgroup = context.Workgroups.FirstOrDefault(Workgroup.IsInWorkgroup(thisClient));
+
+                if (workgroup == null)
+                {
+                    return null;
+                }
+
+                return new FleetControlStatus
+                {
+                    WorkgroupId = workgroup.WorkgroupId,
+                    CanShare = workgroup.Workstations.Single(w => w.WorkstationId == thisClient.WorkstationId).SharingEnabled,
+                    AllowedApplications = workgroup.AllowedApplications
+                        .Select(a => new FleetApplicationIdentifier
+                        {
+                            ApplicationId = a.ApplicationId,
+                            ApplicationName = a.ApplicationName
+                        })
+                        .ToList()
+                };
+            }
         }
 
         /// <summary>
@@ -119,6 +149,12 @@ namespace FleetServer
             {
                 var thisWorkstation = context.Workstations
                     .Where(w => w.WorkstationIdentifier == token.Identifier);
+
+                // This needs to be updated to select based on the required context
+
+                // If this current machine is in a workgroup, then only return the workstations
+                // that are a part of the workgroup, otherwise, return the workstations that are in the 
+                // required context
 
                 var allWorkstations = context.Workstations
                     .Except(thisWorkstation)
