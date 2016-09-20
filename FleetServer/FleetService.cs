@@ -10,6 +10,7 @@ using FleetEntityFramework.DAL;
 using FleetEntityFramework.Models;
 using FleetServer.Utils;
 using System.IO;
+using System.Configuration;
 
 namespace FleetServer
 {
@@ -326,9 +327,11 @@ namespace FleetServer
             return true;
         }
 
+#warning This is now un-needed
         private string GenerateFilePath(string workstationId)
         {
-            var path = $"temp/{workstationId}";
+            //var path = $"temp/{workstationId}";
+            var path = ConfigurationManager.AppSettings["FileStorage"];
             if (!Directory.Exists(path))
             {
                 System.IO.Directory.CreateDirectory(path);
