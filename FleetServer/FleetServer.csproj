@@ -65,7 +65,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\lib\FleetEntityFramework\FleetEntityFramework.csproj">
@@ -76,6 +75,7 @@
   <ItemGroup>
     <None Include="Config\App.Release.config" />
     <None Include="Config\App.Debug.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
