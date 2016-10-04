@@ -164,7 +164,11 @@ namespace FleetServer
                                 {
                                     Identifier = w.WorkstationIdentifier,
                                     LastSeen = w.LastSeen,
-                                    WorkstationName = w.FriendlyName
+                                    WorkstationName = w.FriendlyName,
+                                    TopXRoomOffset = w.TopXRoomOffset,
+                                    TopYRoomOffset = w.TopYRoomOffset,
+                                    Colour = w.Colour,
+                                    IsFacilitator = w.IsFacilitator
                                 }).ToList()
                             }).ToList()
                         }).ToList()
@@ -237,7 +241,11 @@ namespace FleetServer
                 {
                     WorkstationName = w.FriendlyName,
                     Identifier = w.WorkstationIdentifier,
-                    LastSeen = w.LastSeen
+                    LastSeen = w.LastSeen,
+                    TopXRoomOffset = w.TopXRoomOffset,
+                    TopYRoomOffset = w.TopYRoomOffset,
+                    Colour = w.Colour,
+                    IsFacilitator = w.IsFacilitator
                 }).ToList();
             }
         }

@@ -77,6 +77,18 @@ namespace FleetServer
 
         [DataMember]
         public DateTime LastSeen { get; set; }
+
+        [DataMember]
+        public float TopXRoomOffset { get; set; }
+
+        [DataMember]
+        public float TopYRoomOffset { get; set; }
+
+        [DataMember]
+        public bool IsFacilitator { get; set; }
+
+        [DataMember]
+        public string Colour { get; set; }
     }
 
     // Messages
