@@ -529,13 +529,15 @@ namespace FleetServer
 
                 clientMessageRecord.Received = DateTime.Now;
                 clientMessageRecord.HasBeenSeen = true;
-
+                
                 var sendMessage = new FleetMessage();
                 sendMessage.ApplicationId = message.ApplicationId;
+                sendMessage.Application = message.TargetApplication.ApplicationName;
+                sendMessage.Sender = message.Sender.FriendlyName;
                 sendMessage.Identifier = message.MessageId;
                 sendMessage.Sent = message.Sent;
                 sendMessage.Message = message.Message;
-
+                
                 ctx.SaveChanges();
                 return sendMessage;
             }

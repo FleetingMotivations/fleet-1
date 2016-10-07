@@ -120,7 +120,13 @@ namespace FleetServer
         public Int32 Identifier { get; set; }
 
         [DataMember]
+        public String Sender { get; set; }
+
+        [DataMember]
         public Int32 ApplicationId { get; set; }
+
+        [DataMember]
+        public String Application { get; set; }
 
         [DataMember]
         public DateTime Sent { get; set; }
