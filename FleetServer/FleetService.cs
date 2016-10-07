@@ -314,6 +314,7 @@ namespace FleetServer
                 var receiver = context.Workstations.First(w => w.WorkstationIdentifier == recipient.Identifier);
 
                 // TODO: resolve potential issues with write permissions against this directory
+#warning This needs to add some ID to the filename
                 var writePath = $"{GenerateFilePath(token.Identifier)}/{file.FileName}_{DateTime.Now.GetHashCode()}";
 
                 writePath = WriteFile(file.FileContents, writePath);
@@ -327,7 +328,6 @@ namespace FleetServer
             return true;
         }
 
-#warning This is now un-needed
         private string GenerateFilePath(string workstationId)
         {
             //var path = $"temp/{workstationId}";
