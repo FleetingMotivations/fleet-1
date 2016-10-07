@@ -314,7 +314,7 @@ namespace FleetServer
                 var receiver = context.Workstations.First(w => w.WorkstationIdentifier == recipient.Identifier);
 
                 // TODO: resolve potential issues with write permissions against this directory
-                var writePath = $"{GenerateFilePath(token.Identifier)}/{file.FileName}_{DateTime.Now.GetHashCode()}";
+                var writePath = $"{GenerateFilePath()}/{file.FileName}_{DateTime.Now.GetHashCode()}_{token.Identifier}";
 
                 writePath = WriteFile(file.FileContents, writePath);
 
@@ -327,8 +327,7 @@ namespace FleetServer
             return true;
         }
 
-#warning This is now un-needed
-        private string GenerateFilePath(string workstationId)
+        private string GenerateFilePath()
         {
             //var path = $"temp/{workstationId}";
             var path = ConfigurationManager.AppSettings["FileStorage"];
@@ -449,7 +448,7 @@ namespace FleetServer
                 // TODO:
                 var receiverIds = recipients.Select(r => r.Identifier); 
                 var receivers = context.Workstations.Where(w => receiverIds.Contains(w.WorkstationIdentifier));
-                var writePath = $"{GenerateFilePath(token.Identifier)}/{file.FileName}_{DateTime.Now.GetHashCode()}";
+                var writePath = $"{GenerateFilePath()}/{file.FileName}_{DateTime.Now.GetHashCode()}_{token.Identifier}";
 
                 writePath = WriteFile(file.FileContents, writePath);
 
