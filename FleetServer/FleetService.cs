@@ -36,7 +36,7 @@ namespace FleetServer
                 {
                     workstation = new FleetEntityFramework.Models.Workstation
                     {
-                        RoomID = context.Rooms.Single(r => r.RoomIdentifier == registrationModel.RoomIdentifier).RoomId,
+                        RoomId = context.Rooms.Single(r => r.RoomIdentifier == registrationModel.RoomIdentifier).RoomId,
                         FriendlyName = registrationModel.FriendlyName,
                         WorkstationIdentifier = hash,
                         LastSeen = DateTime.Now
@@ -86,7 +86,12 @@ namespace FleetServer
                 }
 
                 // Check for any command / control updates
-                if (context.Workgroups.Where(Workgroup.IsInWorkgroup(thisClient)).Any())
+                var inProgress = Workgroup.IsInProgress().Compile();
+                var inRunningWorkgroup = thisClient.Workgroups
+                    .Where(wgr => !wgr.TimeRemoved.HasValue)
+                    .Where(inProgress)
+                    .Any();
+                if (inRunningWorkgroup)
                 {
                     flags = flags.AddFlag(FleetHearbeatEnum.InWorkgroup);
                 }
@@ -115,7 +120,13 @@ namespace FleetServer
             using (var context = new FleetContext())
             {
                 var thisClient = context.Workstations.Single(w => w.WorkstationIdentifier == token.Identifier);
-                var workgroup = context.Workgroups.FirstOrDefault(Workgroup.IsInWorkgroup(thisClient));
+
+                var inProgress = Workgroup.IsInProgress().Compile();
+                var workgroup = thisClient.Workgroups
+                    .Where(wgr => !wgr.TimeRemoved.HasValue)
+                    .Where(inProgress)
+                    .SingleOrDefault()?
+                    .Workgroup;
 
                 if (workgroup == null)
                 {
@@ -146,7 +157,7 @@ namespace FleetServer
             using (var context = new FleetContext())
             {
                 // This entire hideous chain could be better done using automapper
-                return new FleetWorkstationHierachy
+                var ret = new FleetWorkstationHierachy
                 {
                     Campuses = context.Campuses.Select(c => new FleetCampusIdentifier
                     {
@@ -163,7 +174,7 @@ namespace FleetServer
                                 Clients = r.Workstations.Select(w => new FleetClientIdentifier
                                 {
                                     Identifier = w.WorkstationIdentifier,
-                                    LastSeen = w.LastSeen,
+                                    LastSeen = w.LastSeen ?? DateTime.MinValue,
                                     WorkstationName = w.FriendlyName,
                                     TopXRoomOffset = w.TopXRoomOffset,
                                     TopYRoomOffset = w.TopYRoomOffset,
@@ -174,6 +185,8 @@ namespace FleetServer
                         }).ToList()
                     }).ToList()
                 };
+
+                return ret;
             }
         }
 
@@ -230,7 +243,7 @@ namespace FleetServer
                     default:
                     {
                         workstations = context.Rooms
-                            .Single(r => r.RoomId == thisWorkstation.First().RoomID)
+                            .Single(r => r.RoomId == thisWorkstation.First().RoomId)
                             .Workstations;
                         break;
                     }

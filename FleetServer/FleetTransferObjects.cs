@@ -76,7 +76,7 @@ namespace FleetServer
         public String WorkstationName { get; set; }
 
         [DataMember]
-        public DateTime LastSeen { get; set; }
+        public DateTime? LastSeen { get; set; }
 
         [DataMember]
         public float TopXRoomOffset { get; set; }
@@ -138,30 +138,40 @@ namespace FleetServer
     [DataContract]
     public class FleetWorkstationHierachy
     {
+        [DataMember]
         public List<FleetCampusIdentifier> Campuses { get; set; } 
     }
 
     [DataContract]
     public class FleetCampusIdentifier
     {
+        [DataMember]
         public string Name { get; set; }
+        [DataMember]
         public int Id { get; set; }
+        [DataMember]
         public List<FleetBuildingIdentifier> Buildings { get; set; } 
     }
 
     [DataContract]
     public class FleetBuildingIdentifier
     {
+        [DataMember]
         public string Name { get; set; }
+        [DataMember]
         public int Id { get; set; }
+        [DataMember]
         public List<FleetRoomIdentifier> Rooms { get; set; } 
     }
 
     [DataContract]
     public class FleetRoomIdentifier
     {
+        [DataMember]
         public string Name { get; set; }
+        [DataMember]
         public int Id { get; set; }
+        [DataMember]
         public List<FleetClientIdentifier> Clients { get; set; } 
     }
 
