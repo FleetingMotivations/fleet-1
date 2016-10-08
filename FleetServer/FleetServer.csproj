@@ -46,6 +46,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
@@ -61,14 +62,20 @@
     <Compile Include="Utils\Extensions.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
-    <None Include="App.config" />
-    <None Include="packages.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\lib\FleetEntityFramework\FleetEntityFramework.csproj">
       <Project>{d063f451-31e9-40e0-862f-22f51466b462}</Project>
       <Name>FleetEntityFramework</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Config\App.Release.config" />
+    <None Include="Config\App.Debug.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
@@ -93,4 +100,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="AfterBuild">
+    <Delete Files="$App.config" />
+    <Copy SourceFiles="$(ProjectDir)\Config\App.$(Configuration).config" DestinationFiles="App.config" />
+  </Target>
 </Project>
