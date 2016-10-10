@@ -54,6 +54,9 @@ namespace FleetServer
 
         [DataMember]
         public string SenderName { get; set; }
+
+        [DataMember]
+        public String SenderIdentifier { get; set; }
     }
 
     [DataContract]
