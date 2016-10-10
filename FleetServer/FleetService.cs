@@ -79,6 +79,7 @@ namespace FleetServer
                 if (unseenMessages.Any())
                 {
                     flags = flags.AddFlag(FleetHearbeatEnum.FileAvailable);
+                    flags = flags.AddFlag(FleetHearbeatEnum.ManageUpdate);
                     foreach (var message in unseenMessages)
                     {
                         message.HasBeenSeen = true;
@@ -286,7 +287,9 @@ namespace FleetServer
                         FileName = m.FileName,
                         FileSize = m.FileSize,
                         Identifier = m.MessageId.ToString(),
-                        SenderName = m.Sender.FriendlyName
+                        SenderName = m.Sender.FriendlyName,
+                        SenderIdentifier = m.Sender.WorkstationIdentifier
+
                     }).ToList(); // Recast as list from IEnumerable
 
                 return records;
@@ -584,8 +587,17 @@ namespace FleetServer
                 message.TargetApplication = targetApplication;
                 message.Message = msg.Message;
                 message.Sender = senderWorkstation;
-                message.Sent = msg.Sent;
-                message.MessageRecords = new List<WorkstationMessage>();
+                message.Sent = DateTime.Now;
+
+                IList<WorkstationMessage> records = recipients.Select(t => new WorkstationMessage
+                {
+                    WorkStationId = ctx.Workstations.Where(wks => wks.WorkstationIdentifier == t.Identifier).First().WorkstationId,
+                    Message = message,
+                    Received = null,
+                    HasBeenSeen = false
+                }).ToList();
+
+                message.MessageRecords = records;
 
                 // Create database records for each recipient
                 foreach (var recipient in recipients)
@@ -601,6 +613,8 @@ namespace FleetServer
                 }
 
                 ctx.AppMessages.Add(message);
+                
+                ctx.SaveChanges();
 
                 return true;
             }
