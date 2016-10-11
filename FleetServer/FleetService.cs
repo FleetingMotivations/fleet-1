@@ -14,8 +14,12 @@ using System.Configuration;
 
 namespace FleetServer
 {
-    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "FleetService" in code, svc and config file together.
-    // NOTE: In order to launch WCF Test Client for testing this service, please select FleetService.svc or FleetService.svc.cs at the Solution Explorer and start debugging.
+    /// <summary>
+    /// Implements the base Fleet Service, 
+    /// providing endpoints for querying clients and messages, 
+    /// managing control changes and sending information between
+    /// different workstatoins and applications running on them
+    /// </summary>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession)]
     public class FleetService : IFleetService
     {
@@ -57,11 +61,12 @@ namespace FleetServer
         }
 
         /// <summary>
+        ///  A polling endpoint for a Fleet client to determine message and control updates
         /// 
+        /// If there are no updates, the return enum will indicate that no updates are available
         /// </summary>
-        /// <param name="token"></param>
-        /// <param name="knownClients">The querying clients list of current known clients</param>
-        /// <returns></returns>
+        /// <param name="token">Token identifying the client</param>
+        /// <returns>An enum indicating if this client has any unread messages or control status updates</returns>
         public FleetHearbeatEnum Heartbeat(FleetClientToken token) 
         {
             FleetHearbeatEnum flags = FleetHearbeatEnum.NoUpdates;
@@ -78,6 +83,7 @@ namespace FleetServer
 
                 if (unseenMessages.Any())
                 {
+                    // We have unseen's, add the appropriate flags and mark as seen
                     flags = flags.AddFlag(FleetHearbeatEnum.FileAvailable);
                     flags = flags.AddFlag(FleetHearbeatEnum.ManageUpdate);
                     foreach (var message in unseenMessages)
@@ -97,9 +103,6 @@ namespace FleetServer
                 {
                     flags = flags.AddFlag(FleetHearbeatEnum.InWorkgroup);
                 }
-
-                // This is deprecated. Workstations are requested on demand
-                // if (newWorkstations) flags = flags.AddFlag(FleetHearbeatEnum.ClientUpdate);
             }
 
             // If thre are updates, remove the no update flag from the enum
@@ -115,7 +118,7 @@ namespace FleetServer
         /// Returns the current control status of the client, or null if there are no control operations
         /// acting on the client
         /// </summary>
-        /// <param name="token"></param>
+        /// <param name="token">Token identifying a fleet client</param>
         /// <returns>FleetControlStatus or null</returns>
         public FleetControlStatus QueryControlStatus(FleetClientToken token)
         {
@@ -123,6 +126,7 @@ namespace FleetServer
             {
                 var thisClient = context.Workstations.Single(w => w.WorkstationIdentifier == token.Identifier);
 
+                // Query for any workgroups in which the client is a part of
                 var inProgress = Workgroup.IsInProgress().Compile();
                 var workgroup = thisClient.Workgroups
                     .Where(wgr => !wgr.TimeRemoved.HasValue)
@@ -130,15 +134,23 @@ namespace FleetServer
                     .SingleOrDefault()?
                     .Workgroup;
 
+                // No workgroup found
                 if (workgroup == null)
                 {
                     return null;
                 }
 
+                // Otherwise, return the required model
+                // Handle the ability for a workstation to be kicked and 
+                // readded to a workgroup
                 return new FleetControlStatus
                 {
                     WorkgroupId = workgroup.WorkgroupId,
-                    CanShare = workgroup.Workstations.Single(w => w.WorkstationId == thisClient.WorkstationId).SharingEnabled,
+                    CanShare = workgroup.Workstations
+                        .Where(w => w.WorkstationId == thisClient.WorkstationId)
+                        .OrderByDescending(wg => wg.TimeAdded)
+                        .First()
+                        .SharingEnabled,
                     AllowedApplications = workgroup.AllowedApplications
                         .Select(a => new FleetApplicationIdentifier
                         {
@@ -151,14 +163,16 @@ namespace FleetServer
         }
 
         /// <summary>
-        /// Returns the current hierachy of workstations
+        /// Returns the current hierachy of workstations. That is, all workstations available
+        /// Subset into their relevant contexts
         /// </summary>
         /// <returns></returns>
         public FleetWorkstationHierachy QueryWorkstationHierachy()
         {
             using (var context = new FleetContext())
             {
-                // This entire hideous chain could be better done using automapper
+                // This really requires an auto-mapper, but the config and things needed for
+                // that are outside the scope of an MVP
                 var ret = new FleetWorkstationHierachy
                 {
                     Campuses = context.Campuses.Select(c => new FleetCampusIdentifier
@@ -193,7 +207,9 @@ namespace FleetServer
         }
 
         /// <summary>
-        /// Will return a list of all the clients on the server
+        /// Will return a list of all the clients on the server, based on the given context and provided id
+        /// 
+        /// E.g. a workgroup context and an id will get all the workstations under that particular workgroup
         /// </summary>
         /// <param name="token"></param>
         /// <param name="clientContext">The context from which to retrieve clients</param>
@@ -208,6 +224,7 @@ namespace FleetServer
 
                 IEnumerable<Workstation> workstations;
 
+                // Grab the appropriate collection of workstations
                 switch (clientContext)
                 {
                     case FleetClientContext.Room:
@@ -251,6 +268,7 @@ namespace FleetServer
                     }
                 }
 
+                // Filter out the current workstation and transform
                 workstations = workstations.Except(thisWorkstation);
                 return workstations.Select(w => new FleetClientIdentifier
                 {
@@ -301,11 +319,9 @@ namespace FleetServer
         /// </summary>
         /// <param name="token">The client making the request</param>
         /// <param name="fileId"></param>
-        /// <returns></returns>
+        /// <returns>The requested file</returns>
         public FleetFile GetFile(FleetClientToken token, FleetFileIdentifier fileId)
         {
-            // TODO: Add security
-
             using (var context = new FleetContext())
             {
                 var fileIdParsed = int.Parse(fileId.Identifier);
@@ -330,6 +346,13 @@ namespace FleetServer
             }
         }
 
+        /// <summary>
+        /// Sends the given file to the recipient
+        /// </summary>
+        /// <param name="token">Token identifiying the sending client</param>
+        /// <param name="recipient">Identifier uniquely identifying the target of the message</param>
+        /// <param name="file">The file to be sent</param>
+        /// <returns></returns>
         public Boolean SendFile(FleetClientToken token, FleetClientIdentifier recipient, FleetFile file)
         {
             using (var context = new FleetContext())
@@ -337,9 +360,8 @@ namespace FleetServer
                 var sender = context.Workstations.First(w => w.WorkstationIdentifier == token.Identifier);
                 var receiver = context.Workstations.First(w => w.WorkstationIdentifier == recipient.Identifier);
 
-                // TODO: resolve potential issues with write permissions against this directory
+                // Build the write path 
                 var writePath = $"{GenerateFilePath()}/{file.FileName}_{DateTime.Now.GetHashCode()}_{token.Identifier}";
-
                 writePath = WriteFile(file.FileContents, writePath);
 
                 var message = CreateFileManifest(sender, file, writePath, context);
@@ -351,6 +373,10 @@ namespace FleetServer
             return true;
         }
 
+        /// <summary>
+        /// Generates the base file path that will be used to write files
+        /// </summary>
+        /// <returns></returns>
         private string GenerateFilePath()
         {
             //var path = $"temp/{workstationId}";
@@ -380,7 +406,7 @@ namespace FleetServer
                     // TODO: Update this to support application resolution
                     Sent = DateTime.Now,
                     FileName = file.FileName,
-                    FileSize = file.FileContents.Length,    // Length in bytes D:
+                    FileSize = file.FileContents.Length,    // Length in bytes
                     HasBeenScanned = false,
                     Uri = filePath,
                     FileType = "jpg" // TODO: Update this to support decent file types
@@ -420,9 +446,9 @@ namespace FleetServer
         /// <param name="path">The absolute path to which to write the file</param>
         private string WriteFile(byte[] contents, string path)
         {
-            // TODO: Determine if there is a better way to do this
             try
             {
+                // Make the path acceptble to windows
                 path = path.Replace(':', '_');
                 path = path.Replace(' ', '_');
                 using (var fileStream = new BinaryWriter(new FileStream(path, FileMode.CreateNew)))
@@ -474,6 +500,8 @@ namespace FleetServer
                 var receivers = context.Workstations.Where(w => receiverIds.Contains(w.WorkstationIdentifier));
                 var writePath = $"{GenerateFilePath()}/{file.FileName}_{DateTime.Now.GetHashCode()}_{token.Identifier}";
 
+                // Slight code duplication around here to avoid rebuilding the database context for each
+                // call that would be required to handle each workstation
                 writePath = WriteFile(file.FileContents, writePath);
 
                 var message = CreateFileManifest(sender, file, writePath, context);
@@ -485,7 +513,11 @@ namespace FleetServer
         }
 
         // Message handling
-
+        /// <summary>
+        /// Querys the inter-application messages that have been to the given clients
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public List<FleetMessageIdentifier> QueryMessages(FleetClientToken token)
         {
             using (var ctx = new FleetContext())
@@ -500,20 +532,6 @@ namespace FleetServer
                     .Select(mr => mr.Message as AppMessage)
                     .ToList();
 
-                /*var records = context.MessageRecords
-                    .Include(r => r.Message)
-                    .Where(r => r.Target.WorkstationIdentifier == token.Identifier)
-                    .Where(r => !r.HasBeenSeen)
-                    .ToList() // Force query to resolve
-                    .Where(r => r.Message.GetType() == (typeof(FileMessage)))
-                    .Select(r => r.Message as FileMessage)
-                    .Select(m => new FleetFileIdentifier
-                    {
-                        FileName = m.FileName,
-                        FileSize = m.FileSize,
-                        Identifier = m.MessageId.ToString()
-                    }).ToList(); // Recast as list from IEnumerable*/
-
                 // Create message 
                 var messageIdentifiers = new List<FleetMessageIdentifier>();
                 foreach (var msg in messages)
@@ -527,14 +545,18 @@ namespace FleetServer
                 return messageIdentifiers;
             }
         }
-
+        /// <summary>
+        /// Gets the specified message for the given client
+        /// </summary>
+        /// <param name="token">Token identifying this client</param>
+        /// <param name="messageId">The message identifier of the message to be retreived</param>
+        /// <returns></returns>
         public FleetMessage GetMessage(FleetClientToken token, FleetMessageIdentifier messageId)
         {
             using (var ctx = new FleetContext())
             {
                 var message = ctx.AppMessages
-                    .Where(msg => msg.MessageId == messageId.Identifier)
-                    .FirstOrDefault();
+                    .FirstOrDefault(msg => msg.MessageId == messageId.Identifier);
 
                 if (message == null)
                 {
